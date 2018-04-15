@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<head>
+    <!-- bootstrap styles -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <!-- google maps api -->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZFXliJFR5C8bzhqwnwFuXC0q-VwWrx38"></script>
+    <!-- self defined styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="d-flex flex-column h-100">
+        <nav class="navbar navbar-expand-sm navbar-light bg-light sticky-top">
+            <a class="navbar-brand" href="#">Restaurant Map</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="navbar-collapse collapse" id="navbarContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="collapse" href="#filtersCollapse" role="button" aria-expanded="false" aria-controls="filtersCollapse">Filters</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bind="click: exportData" href="#" role="button">Export</a>
+                    </li>
+                    <li class="nav-item" data-bind="visible: !!_currentAccessToken()">
+                        <a class="nav-link" data-toggle="modal" data-target="#addRestaurantDialog" href="#" role="button">Add Restaurant</a>
+                    </li>
+                </ul>
+                <div>
+                    <!-- ko if: !_currentAccessToken() -->
+                    <a class="nav-link" data-toggle="modal" data-target="#signInDialog" href="#" role="button">Sign In</a>
+                    <!-- /ko -->
+                    <!-- ko if: !!_currentAccessToken() -->
+                    <span data-bind="text: _currentAccessToken().username"></span>
+                    <a class="nav-link" data-bind="click: signOut" href="#" role="button">Sign Out</a>
+                    <!-- /ko -->
+                </div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column flex-grow">
+            <!-- filters -->
+            <div class="collapse" id="filtersCollapse">
+                <div class="card card-body">
+                    <div class="row" data-bind="foreach: _filters._filters">
+                        <div class="col-sm-auto filter-col" data-bind="template: {name:'filter-template', data: $data}"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- map -->
+            <div id="map" class="h-100 flex-grow"></div>
+        </div>
+    </div>
+
+    <!-- add restaurant dialog -->
+    <div class="modal fade" id="addRestaurantDialog" tabindex="-1" role="dialog" aria-labelledby="addRestaurantDialogLabel" aria-hidden="true"
+        data-bind="template: {name:'add-restaurant-dialog-template', data: _addDialog}"></div>
+
+    <!-- sign in dialog -->
+    <div class="modal fade" id="signInDialog" tabindex="-1" role="dialog" aria-labelledby="signInDialogLabel" aria-hidden="true"
+        data-bind="template: {name:'sign-in-dialog-template', data: _signInDialog}"></div>
+
+    <!-- FilterViewModel template -->
+    <script type="text/html" id="filter-template">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="foo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bind="text: name, attr: { 'id': name + '-filter-dropdown' }"></button>
+            <div class="dropdown-menu" data-bind="attr: { 'aria-labelledby': name + '-filter-dropdown' }">
+                <div data-bind="foreach: _filters">
+                    <div class="dropdown-item filter-value-button" data-bind="click: $data._clickHandler, clickBubble: false">
+                        <!-- we make the click function a no-op so the button can set the checked value -->
+                        <input type="checkbox" data-bind="attr: { 
+                                    'id': $data.name + '-option-' + $parent.name + '-filter-dropdown', 
+                                    'name': $data.name + '-option-' + $parent.name + '-filter-dropdown'
+                                }, checked: $data.selected, click: function() { return true}, clickBubble: false">
+                        <label data-bind="text: $data.name, attr: { 'for': $data.name + '-option-' + $parent.name + '-filter-dropdown'}"></label>
+                    </div>
+                </div>
+                <div class="dropdown-item filter-value-button" data-bind="click: _allClickHandler, clickBubble: false">
+                     <!-- we make the click function a no-op so the button can set the checked value -->
+                     <input type="checkbox" data-bind="attr: { 
+                            'id': 'all-option-' + name + '-filter-dropdown', 
+                            'name': 'all-option-' + name + '-filter-dropdown'
+                        }, checked: _allSelected, click: function() { return true}, clickBubble: false">
+                    <label data-bind="attr: { 'for': 'all-option-' + name + '-filter-dropdown'}">All</label>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- AddRestaurantDialog template -->
+    <script type="text/html" id="add-restaurant-dialog-template">
+        <div class="modal-dialog add-restaurant-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRestaurantDialogLabel">Add Restaurant</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- search step -->
+                <div data-bind="visible: $data._currentStep().id === 'search'">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="restaurantName">Restaurant name</label>
+                            <input class="form-control" id="restaurantName" aria-describedby="restaurantName" data-bind="textInput: $data._searchStep._searchFieldValue, attr:{ 'placeholder':  $data._searchStep._searchFieldPlaceholder }">
+                        </div>
+                    </div>
+                </div>
+                <!-- results step -->
+                <div data-bind="visible: $data._currentStep().id === 'results'">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="searchResults">Select all matching restaurants</label>
+                            <div id="searchResults" data-bind="foreach: $data._resultsStep._results">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div>
+                                            <input type="checkbox" data-bind="attr: { 
+                                                'id': $data.restaurant.name + ', ' + $data.restaurant.locations[0].address, 
+                                                'name': $data.restaurant.name + ', ' + $data.restaurant.locations[0].address
+                                            }, checked: $data.selected">
+                                            <label data-bind="
+                                                attr: { 'for': $data.restaurant.name + ', ' + $data.restaurant.locations[0].address },
+                                                text: $data.restaurant.name + ', ' + $data.restaurant.locations[0].address" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- final step -->
+                <div data-bind="visible: $data._currentStep().id === 'final'">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="restaurantGenre">Genre</label>
+                            <input class="form-control" id="restaurantGenre" aria-describedby="restaurantGenre" data-bind="textInput: $data._finalStep._genreFieldValue, attr:{ 'placeholder':  $data._finalStep._genreFieldPlaceholder }">
+                            <label for="restaurantSubGenre">Sub-genre</label>
+                            <input class="form-control" id="restaurantSubGenre" aria-describedby="restaurantSubGenre" data-bind="textInput: $data._finalStep._subGenreFieldValue, attr:{ 'placeholder':  $data._finalStep._subGenreFieldPlaceholder }">
+                            <label for="exampleInputEmail1">Rating</label>
+                            <select class="custom-select" data-bind="value: $data._finalStep._rating">
+                                <option value="Ok">Ok</option>
+                                <option value="Good">Good</option>
+                                <option value="Better">Better</option>
+                                <option value="Best">Best</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bind="click: $data.close()">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-bind="click: $data._currentStep().onNext, text: $data._currentStep().buttonText"></button>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- SignInDialog template -->
+    <script type="text/html" id="sign-in-dialog-template">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signInDialogLabel">Sign In</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- search step -->
+                <div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input class="form-control" id="username" aria-describedby="username" data-bind="textInput: $data._usernameFieldValue, attr:{ 'placeholder':  $data._usernameFieldPlaceholder }">
+                            <label for="password">Password</label>
+                            <input class="form-control" id="password" type="password" aria-describedby="password" data-bind="textInput: $data._passwordFieldValue, attr:{ 'placeholder':  $data._passwordFieldPlaceholder }">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bind="click: $data.cancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-bind="click: $data.signIn">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- main script -->
+    <script type="text/javascript" src="./js/bundle.js"> </script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+# Restaurant Map API #
+RestaurantMapAPI/.vs/
+RestaurantMapAPI/RestaurantMapAPI/bin/
+RestaurantMapAPI/RestaurantMapAPI/obj/
+RestaurantMapAPI/RestaurantMapAPI/appsettings.json
+RestaurantMapAPI/RestaurantMapAPI/Properties/
+
+# Restaurant Map Website #
+RestaurantMapWebsite/.bin/
+RestaurantMapWebsite/node_modules/
