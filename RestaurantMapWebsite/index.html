@@ -47,8 +47,14 @@
             <!-- filters -->
             <div class="collapse" id="filtersCollapse">
                 <div class="card card-body">
-                    <div class="row" data-bind="foreach: _filters._filters">
-                        <div class="col-sm-auto filter-col" data-bind="template: {name:'filter-template', data: $data}"></div>
+                    <div class="row filter-row">
+                        <div class="col-sm-auto row" data-bind="foreach: _restaurantFilters._filters">
+                            <div class="col-sm-auto" data-bind="template: {name:'filter-template', data: $data}"></div>
+                        </div>
+                        <div class="col-sm-auto" align="center">
+                            <input type="checkbox" id="showVisitedOnlyCheckbox" data-bind="checked: _onlyShowVisited">
+                            <label for="showVisitedOnlyCheckbox">Only Show Visited Locations</label>
+                        </div>
                     </div>
                 </div>
             </div>

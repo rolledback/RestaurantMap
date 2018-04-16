@@ -14,7 +14,7 @@ namespace RestaurantMapAPI
 
         Task AddRestaurant(Restaurant item);
 
-        Task<bool> UpdateRestaurant(string id, Restaurant item);
+        Task<bool> UpdateRestaurant(Restaurant item);
 
         Task<bool> RemoveRestaurant(string id);
     }

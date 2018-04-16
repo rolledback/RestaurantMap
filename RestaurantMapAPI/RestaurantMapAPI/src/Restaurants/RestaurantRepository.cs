@@ -76,11 +76,12 @@ namespace RestaurantMapAPI
             }
         }
 
-        public async Task<bool> UpdateRestaurant(string id, Restaurant item)
+        public async Task<bool> UpdateRestaurant(Restaurant item)
         {
             try
             {
-                ReplaceOneResult actionResult = await _context.Restaurants.ReplaceOneAsync(n => n._id.ToString().Equals(id), item, new UpdateOptions { IsUpsert = true });
+                var filter = Builders<Restaurant>.Filter.Eq("_id", item._id);
+                ReplaceOneResult actionResult = await _context.Restaurants.ReplaceOneAsync(filter, item, new UpdateOptions { IsUpsert = true });
                 return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
             }
             catch (Exception ex)

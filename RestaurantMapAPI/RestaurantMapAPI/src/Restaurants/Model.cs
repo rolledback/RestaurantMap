@@ -24,6 +24,7 @@ namespace RestaurantMapAPI
         public double lat { get; set; }
         public double lng { get; set; }
         public IEnumerable<string> reviewSites { get; set; }
+        public bool visited { get; set; }
     }
 
     public class ReviewSite

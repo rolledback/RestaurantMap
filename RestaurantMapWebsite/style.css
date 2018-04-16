@@ -12,3 +12,8 @@ html, body {
 .add-restaurant-dialog {
     max-width: 750px;
 }
+.filter-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}

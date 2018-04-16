@@ -18,7 +18,8 @@ export default class RestaurantMapViewModel {
     private _geocoder: google.maps.Geocoder;
     private _currentOpenWindow: google.maps.InfoWindow;
     private _data: IRestaurant[] = [];
-    private _filters: FiltersViewModel;
+    private _restaurantFilters: FiltersViewModel;
+    private _onlyShowVisited: KnockoutObservable<boolean>;
 
     private _addDialog: AddRestaurantDialogViewModel;
     private _signInDialog: SignInDialogViewModel;
@@ -39,8 +40,13 @@ export default class RestaurantMapViewModel {
         };
 
         this._map = new google.maps.Map(mapElement, mapOptions);
-        this._filters = new FiltersViewModel();
+        this._restaurantFilters = new FiltersViewModel();
         this._addLocationMarker();
+
+        this._onlyShowVisited = ko.observable<boolean>(true);
+        this._onlyShowVisited.subscribe((value) => {
+            this._applyFilters(this._restaurantFilters.allSelectedFilters());
+        });
 
         this._init();
         this._addDialog = new AddRestaurantDialogViewModel();
@@ -82,7 +88,7 @@ export default class RestaurantMapViewModel {
     public async exportData(): Promise<void> {
         let restaurntsToExport: IRestaurant[] = [];
         this._data.forEach((restaurnt) => {
-            let filterOut = !RestaurantMapViewModel._doesRestaurantMatchFilters(restaurnt, this._filters.allSelectedFilters());
+            let filterOut = !RestaurantMapViewModel._doesRestaurantMatchFilters(restaurnt, this._restaurantFilters.allSelectedFilters());
             if (!filterOut) {
                 restaurntsToExport.push(restaurnt);
             }
@@ -147,15 +153,20 @@ export default class RestaurantMapViewModel {
     }
 
     private _generateFilters() {
-        this._filters.clearFilters();
-        this._filters.addFilter(this._createFilter("genre"));
-        this._filters.addFilter(this._createFilter("rating"));
+        this._restaurantFilters.clearFilters();
+        this._restaurantFilters.addFilter(this._createFilter("genre"));
+        this._restaurantFilters.addFilter(this._createFilter("rating"));
 
-        this._filters.allSelectedFilters.subscribe((allSelectedFilters) => {
-            this._data.forEach((restaurnt) => {
-                let filterOut = !RestaurantMapViewModel._doesRestaurantMatchFilters(restaurnt, allSelectedFilters);
-                this._filterRestaurant(restaurnt, filterOut);
-            });
+        this._restaurantFilters.allSelectedFilters.subscribe((allSelectedFilters) => {
+            this._applyFilters(allSelectedFilters);
+        });
+        this._applyFilters(this._restaurantFilters.allSelectedFilters());
+    }
+
+    private _applyFilters(filters: { [field: string]: string[] }) {
+        this._data.forEach((restaurnt) => {
+            let filterOut = !RestaurantMapViewModel._doesRestaurantMatchFilters(restaurnt, filters);
+            this._filterRestaurant(restaurnt, filterOut);
         });
     }
 
@@ -169,7 +180,11 @@ export default class RestaurantMapViewModel {
     private _filterRestaurant(restaurant: IRestaurant, filteredOut: boolean) {
         restaurant.locations.forEach((location) => {
             if (!!location.marker) {
-                if (!filteredOut && location.marker.getMap() === null) {
+                if (this._onlyShowVisited() && !location.visited) {
+                    if (location.marker.getMap() !== null) {
+                        location.marker.setMap(null);
+                    }
+                } else if (!filteredOut && location.marker.getMap() === null) {
                     location.marker.setMap(this._map);
                 } else if (filteredOut && !!location.marker.getMap()) {
                     location.marker.setMap(null);
