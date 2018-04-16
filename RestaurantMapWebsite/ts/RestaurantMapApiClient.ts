@@ -1,6 +1,7 @@
-class ApiClient {
+class RestaurantMapApiClient {
 
     private static _baseEndpoint: string = "https://restaurantmapapi.azurewebsites.net/api/";
+    // private static _baseEndpoint: string = "http://localhost:5000/api/";
 
     private _accessToken: string | null;
 
@@ -26,7 +27,7 @@ class ApiClient {
                     }
                 }
             };
-            httpRequest.open("GET", `${ApiClient._baseEndpoint}${endpoint}`);
+            httpRequest.open("GET", `${RestaurantMapApiClient._baseEndpoint}${endpoint}`);
             httpRequest.setRequestHeader("Content-Type", "application/json");
             if (!!this._accessToken) {
                 httpRequest.setRequestHeader("Authorization", `Bearer ${this._accessToken}`);
@@ -53,7 +54,7 @@ class ApiClient {
                     }
                 }
             };
-            httpRequest.open("POST", `${ApiClient._baseEndpoint}${endpoint}`);
+            httpRequest.open("POST", `${RestaurantMapApiClient._baseEndpoint}${endpoint}`);
             httpRequest.setRequestHeader("Content-Type", "application/json");
             if (!!this._accessToken) {
                 httpRequest.setRequestHeader("Authorization", `Bearer ${this._accessToken}`);
@@ -63,4 +64,4 @@ class ApiClient {
     }
 }
 
-export default new ApiClient();
+export default new RestaurantMapApiClient();

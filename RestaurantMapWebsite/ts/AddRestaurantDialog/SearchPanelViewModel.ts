@@ -3,7 +3,7 @@ import IPanelViewModel from "./PanelViewModel";
 import { RestaurantSearchResult } from "./ResultsPanelViewModel";
 import AddRestaurantDialogViewModel from "./AddRestaurantDialogViewModel";
 import IRestaurant from "../IRestaurant";
-import ApiClient from "../ApiClient";
+import RestaurantMapApiClient from "../RestaurantMapApiClient";
 
 export default class SearchPanelViewModel extends IPanelViewModel {
 
@@ -22,7 +22,7 @@ export default class SearchPanelViewModel extends IPanelViewModel {
 
     public onNext = async () => {
         try {
-            let restaurants: IRestaurant[] = await ApiClient.get<IRestaurant[]>(`find-restaurant?restaurantName=${this._searchFieldValue()}`);
+            let restaurants: IRestaurant[] = await RestaurantMapApiClient.get<IRestaurant[]>(`find-restaurant?restaurantName=${this._searchFieldValue()}`);
             let results: RestaurantSearchResult[] = restaurants.map<RestaurantSearchResult>((searchResult) => {
                 return {
                     restaurant: searchResult,

@@ -7,7 +7,8 @@ import FiltersViewModel from "./FiltersViewModel";
 import FilterViewModel from "./FilterViewModel";
 import AddRestaurantDialogViewModel from "./AddRestaurantDialog/AddRestaurantDialogViewModel";
 import SignInDialogViewModel from "./SignInDialog/SignInDialogViewModel";
-import ApiClient from "./ApiClient";
+import RestaurantMapApiClient from "./RestaurantMapApiClient";
+import GeocoderApiClient from "./GeocoderApiClient";
 
 export type AuthToken = { token: string, username: string };
 
@@ -66,7 +67,7 @@ export default class RestaurantMapViewModel {
         });
 
         this._currentAccessToken.subscribe((value: AuthToken | null) => {
-            ApiClient.setAccessToken(!!value ? value.token : null);
+            RestaurantMapApiClient.setAccessToken(!!value ? value.token : null);
         });
     }
 
@@ -75,7 +76,7 @@ export default class RestaurantMapViewModel {
     }
 
     public async signIn(loginParams: { username: string, password: string }): Promise<AuthToken> {
-        return await ApiClient.post<{ username: string, password: string }, AuthToken>("login", loginParams);
+        return await RestaurantMapApiClient.post<{ username: string, password: string }, AuthToken>("login", loginParams);
     }
 
     public async exportData(): Promise<void> {
@@ -137,7 +138,12 @@ export default class RestaurantMapViewModel {
     }
 
     private async _addRestaurant(restaurant: IRestaurant): Promise<void> {
-        return await ApiClient.post<IRestaurant, void>("restaurants", restaurant);
+        await Promise.all(restaurant.locations.map(async (location) => {
+            let latLng: google.maps.LatLng = await GeocoderApiClient.geocodeAddress(location.address);
+            location.lat = latLng.lat();
+            location.lng = latLng.lng();
+        }));
+        return await RestaurantMapApiClient.post<IRestaurant, void>("restaurants", restaurant);
     }
 
     private _generateFilters() {
@@ -174,7 +180,7 @@ export default class RestaurantMapViewModel {
 
     private async _getData(): Promise<void> {
         try {
-            this._data = await ApiClient.get<IRestaurant[]>("restaurants");
+            this._data = await RestaurantMapApiClient.get<IRestaurant[]>("restaurants");
         } catch (err) {
             this._data = [];
             alert(err);
@@ -204,26 +210,23 @@ export default class RestaurantMapViewModel {
 
     private _addRestaurantMarkers(restaurant: IRestaurant) {
         restaurant.locations.forEach((location) => {
-            this._geocoder.geocode({ "address": location.address }, (results, status) => {
-                if (status == google.maps.GeocoderStatus.OK) {
-                    let infoWindow = this._createInfoWindow(restaurant, location);
-                    let marker = new google.maps.Marker({
-                        position: results[0].geometry.location,
-                        map: this._map,
-                        icon: RestaurantMapViewModel._ratingToIcon(restaurant.rating)
-                    });
-                    marker.addListener("click", () => {
-                        if (!!this._currentOpenWindow) {
-                            this._currentOpenWindow.close();
-                        }
-                        this._currentOpenWindow = infoWindow;
-                        infoWindow.open(this._map, marker);
-                    });
-                    location.marker = marker;
-                } else {
-                    // fail silently
-                }
+            let infoWindow = this._createInfoWindow(restaurant, location);
+            let marker = new google.maps.Marker({
+                position: new google.maps.LatLng(location.lat, location.lng),
+                map: this._map,
+                icon: RestaurantMapViewModel._ratingToIcon(restaurant.rating)
             });
+            marker.addListener("click", () => {
+                if (!!this._currentOpenWindow) {
+                    this._currentOpenWindow.close();
+                }
+                this._currentOpenWindow = infoWindow;
+                infoWindow.open(this._map, marker);
+            });
+            if (!!location.marker) {
+                location.marker.setMap(null);
+            }
+            location.marker = marker;
         });
     }
 

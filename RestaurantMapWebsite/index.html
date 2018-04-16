@@ -34,15 +34,13 @@
                         <a class="nav-link" data-toggle="modal" data-target="#addRestaurantDialog" href="#" role="button">Add Restaurant</a>
                     </li>
                 </ul>
-                <div>
-                    <!-- ko if: !_currentAccessToken() -->
-                    <a class="nav-link" data-toggle="modal" data-target="#signInDialog" href="#" role="button">Sign In</a>
-                    <!-- /ko -->
-                    <!-- ko if: !!_currentAccessToken() -->
-                    <span data-bind="text: _currentAccessToken().username"></span>
-                    <a class="nav-link" data-bind="click: signOut" href="#" role="button">Sign Out</a>
-                    <!-- /ko -->
-                </div>
+                <!-- ko if: !_currentAccessToken() -->
+                <a class="nav-link" data-toggle="modal" data-target="#signInDialog" href="#" role="button">Sign In</a>
+                <!-- /ko -->
+                <!-- ko if: !!_currentAccessToken() -->
+                <span data-bind="text: _currentAccessToken().username"></span>
+                <a class="nav-link" data-bind="click: signOut" href="#" role="button">Sign Out</a>
+                <!-- /ko -->
             </div>
         </nav>
         <div class="d-flex flex-column flex-grow">
