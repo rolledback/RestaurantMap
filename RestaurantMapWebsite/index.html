@@ -76,6 +76,14 @@
         <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="foo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bind="text: name, attr: { 'id': name + '-filter-dropdown' }"></button>
             <div class="dropdown-menu" data-bind="attr: { 'aria-labelledby': name + '-filter-dropdown' }">
+                <div class="dropdown-item filter-value-button" data-bind="click: _allClickHandler, clickBubble: false">
+                    <!-- we make the click function a no-op so the button can set the checked value -->
+                    <input type="checkbox" data-bind="attr: { 
+                            'id': 'all-option-' + name + '-filter-dropdown', 
+                            'name': 'all-option-' + name + '-filter-dropdown'
+                        }, checked: _allSelected, click: function() { return true}, clickBubble: false">
+                    <label data-bind="attr: { 'for': 'all-option-' + name + '-filter-dropdown'}">All</label>
+                </div>
                 <div data-bind="foreach: _filters">
                     <div class="dropdown-item filter-value-button" data-bind="click: $data._clickHandler, clickBubble: false">
                         <!-- we make the click function a no-op so the button can set the checked value -->
@@ -85,14 +93,6 @@
                                 }, checked: $data.selected, click: function() { return true}, clickBubble: false">
                         <label data-bind="text: $data.name, attr: { 'for': $data.name + '-option-' + $parent.name + '-filter-dropdown'}"></label>
                     </div>
-                </div>
-                <div class="dropdown-item filter-value-button" data-bind="click: _allClickHandler, clickBubble: false">
-                     <!-- we make the click function a no-op so the button can set the checked value -->
-                     <input type="checkbox" data-bind="attr: { 
-                            'id': 'all-option-' + name + '-filter-dropdown', 
-                            'name': 'all-option-' + name + '-filter-dropdown'
-                        }, checked: _allSelected, click: function() { return true}, clickBubble: false">
-                    <label data-bind="attr: { 'for': 'all-option-' + name + '-filter-dropdown'}">All</label>
                 </div>
             </div>
         </div>

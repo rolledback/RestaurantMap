@@ -173,7 +173,7 @@ export default class RestaurantMapViewModel {
     private _createFilter(field: string): FilterViewModel {
         let fieldValues = {};
         this._data.forEach((restaurant: IRestaurant) => fieldValues[restaurant[field]] = null);
-        let fieldFilter = new FilterViewModel(RestaurantMapViewModel._toTitleCase(field), Object.keys(fieldValues));
+        let fieldFilter = new FilterViewModel(RestaurantMapViewModel._toTitleCase(field), Object.keys(fieldValues).sort((a, b) => a > b ? 1 : -1));
         return fieldFilter;
     }
 
