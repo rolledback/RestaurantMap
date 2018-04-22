@@ -34,7 +34,7 @@ namespace RestaurantMapAPI
             searchRequest.Location = "Seattle, WA";
             var results = await client.SearchBusinessesAllAsync(searchRequest);
 
-            var matchesToAdd = request.numResults != 0 ? request.numResults : 6;
+            var matchesToAdd = request.numResults != 0 ? request.numResults : 10;
             var possibleLocations = new List<Restaurant>();
             foreach (var business in results.Businesses.Where(b => b.Location.City.Equals("Seattle")))
             {
