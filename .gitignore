@@ -8,3 +8,30 @@ RestaurantMapAPI/RestaurantMapAPI/Properties/
 # Restaurant Map Website #
 RestaurantMapWebsite/.bin/
 RestaurantMapWebsite/node_modules/
+
+# Restaurant Map Android #
+RestaurantMapAndroid/**/google_maps_api.xml
+
+# Built application files #
+RestaurantMapAndroid/**/*.apk
+RestaurantMapAndroid/**/*.ap_
+
+# Files for the dex VM #
+RestaurantMapAndroid/**/*.dex
+
+# Java class files #
+RestaurantMapAndroid/**/*.class
+
+# Generated files #
+RestaurantMapAndroid/bin/
+RestaurantMapAndroid/gen/
+
+# Local configuration file (sdk path, etc) #
+RestaurantMapAndroid/local.properties
+
+# Windows thumbnail db #
+RestaurantMapAndroid/**/Thumbs.db
+
+# NDK #
+RestaurantMapAndroid/obj/
+RestaurantMapAndroid/.externalNativeBuild

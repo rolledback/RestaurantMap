@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Restaurant Map</string>
+    <string name="title_activity_main">Restaurant Map</string>
+    <string name="filter_button_label">Filter</string>
+    <string name="rating_filter_title">Restaurant Rating</string>
+    <string name="ok_rating_title">Ok</string>
+    <string name="ok_rating_description">The bare minimum of what is considered worth going to. These should not be your first choice. That being said, they definitely aren\'t bad.</string>
+    <string name="good_rating_title">Good</string>
+    <string name="good_rating_description">These restaurants are a always a safe bet if you need somewhere to go. There\'s usually something for everyone to like, there might some questionable dishes, and things may end up feeling overpriced.</string>
+    <string name="better_rating_title">Better</string>
+    <string name="better_rating_description">These restaurants have a lot of great food. Although you definitely won\'t find the best things here, there\'s very little chance you\'ll be disappointed.</string>
+    <string name="best_rating_title">Best</string>
+    <string name="best_rating_description">These restaurants have the best food. Nothing on the menu is a bad choice. These are the places you have to visit.</string>
+    <string name="meh_rating_title">Meh</string>
+    <string name="meh_rating_description">These restaurants are not recommended. Not shown by default.</string>
+    <string name="want_rating_title">Want to Go</string>
+    <string name="want_rating_description">Matthew wants to go here! Not shown by default.</string>
+    <string name="other_filters_title">Other</string>
+    <string name="visited_title">Visited</string>
+    <string name="visited_description">Whether or not Matthew has visited a location.</string>
+    <string name="single_title">Single Location</string>
+    <string name="single_description">Whether or not the restaurant has only one location.</string>
+    <string name="show_more_ratings">Show more ratings</string>
+</resources>

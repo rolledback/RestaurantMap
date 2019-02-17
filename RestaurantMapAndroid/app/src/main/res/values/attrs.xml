@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CheckFilterItemView">
+        <attr name="title" format="string"/>
+        <attr name="description" format="string"/>
+    </declare-styleable>
+    <declare-styleable name="ToggleFilterItemView">
+        <attr name="title"/>
+        <attr name="description"/>
+    </declare-styleable>
+</resources>
