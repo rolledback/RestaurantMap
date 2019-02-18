@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.rolledback.restaurantmap.Views.ToggleFilterItemView;
 
-public class ToggleFilterItem implements IViewable {
+public class ToggleFilterItem implements IViewableFilter {
 
     private String _title;
     private String _description;

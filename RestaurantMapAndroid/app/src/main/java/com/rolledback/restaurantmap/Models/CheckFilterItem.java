@@ -3,7 +3,7 @@ package com.rolledback.restaurantmap.Models;
 import android.content.Context;
 import com.rolledback.restaurantmap.Views.CheckFilterItemView;
 
-public class CheckFilterItem implements IViewable {
+public class CheckFilterItem implements IViewableFilter {
 
     private String _title;
     private String _description;

@@ -1,21 +1,21 @@
 package com.rolledback.restaurantmap;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.rolledback.restaurantmap.Models.CheckFilterItem;
-import com.rolledback.restaurantmap.Models.CheckFilterList;
-import com.rolledback.restaurantmap.Views.CheckFilterListView;
+import com.rolledback.restaurantmap.Models.FilterItemList;
+import com.rolledback.restaurantmap.Models.IViewableFilter;
+import com.rolledback.restaurantmap.Models.ToggleFilterItem;
+import com.rolledback.restaurantmap.Views.FilterItemListView;
+import com.rolledback.restaurantmap.Views.Separator;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import androidx.fragment.app.Fragment;
 
@@ -59,7 +59,7 @@ public class FiltersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_filters, container, false);
         this.linearLayout = view.findViewById(R.id.linear_layout);
 
-        List<CheckFilterItem> checkFilterItems = Arrays.asList(
+        List<IViewableFilter> ratingFilterItems = Arrays.asList(
                 new CheckFilterItem(getText(R.string.best_rating_title).toString(), getText(R.string.best_rating_description).toString()),
                 new CheckFilterItem(getText(R.string.better_rating_title).toString(), getText(R.string.better_rating_description).toString()),
                 new CheckFilterItem(getText(R.string.good_rating_title).toString(), getText(R.string.good_rating_description).toString()),
@@ -67,9 +67,17 @@ public class FiltersFragment extends Fragment {
                 new CheckFilterItem(getText(R.string.meh_rating_title).toString(), getText(R.string.meh_rating_description).toString()),
                 new CheckFilterItem(getText(R.string.want_rating_title).toString(), getText(R.string.want_rating_description).toString())
         );
+        FilterItemList ratingFilter = new FilterItemList(getText(R.string.rating_filter_title).toString(), ratingFilterItems);
 
-        CheckFilterList restaurantRating = new CheckFilterList(getText(R.string.rating_filter_title).toString(), checkFilterItems);
-        this.linearLayout.addView(restaurantRating.getView(getContext()));
+        List<IViewableFilter> otherFilterItems = Arrays.asList(
+                new ToggleFilterItem(getText(R.string.visited_title).toString(), getText(R.string.visited_description).toString()),
+                new ToggleFilterItem(getText(R.string.single_title).toString(), getText(R.string.single_description).toString())
+        );
+        FilterItemList otherFilters = new FilterItemList(getText(R.string.other_filters_title).toString(), otherFilterItems);
+
+        this.linearLayout.addView(ratingFilter.getView(getContext()));
+        this.linearLayout.addView(new Separator(getContext()));
+        this.linearLayout.addView(otherFilters.getView(getContext()));
         return view;
     }
 
