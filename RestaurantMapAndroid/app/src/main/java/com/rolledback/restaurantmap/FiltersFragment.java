@@ -60,14 +60,30 @@ public class FiltersFragment extends Fragment {
         this.linearLayout = view.findViewById(R.id.linear_layout);
 
         List<IViewableFilter> ratingFilterItems = Arrays.asList(
-                new CheckFilterItem(getText(R.string.best_rating_title).toString(), getText(R.string.best_rating_description).toString()),
-                new CheckFilterItem(getText(R.string.better_rating_title).toString(), getText(R.string.better_rating_description).toString()),
-                new CheckFilterItem(getText(R.string.good_rating_title).toString(), getText(R.string.good_rating_description).toString()),
-                new CheckFilterItem(getText(R.string.ok_rating_title).toString(), getText(R.string.ok_rating_description).toString()),
-                new CheckFilterItem(getText(R.string.meh_rating_title).toString(), getText(R.string.meh_rating_description).toString()),
-                new CheckFilterItem(getText(R.string.want_rating_title).toString(), getText(R.string.want_rating_description).toString())
+                new CheckFilterItem(getText(R.string.best_rating_title).toString(), getText(R.string.best_rating_description).toString(), true),
+                new CheckFilterItem(getText(R.string.better_rating_title).toString(), getText(R.string.better_rating_description).toString(), true),
+                new CheckFilterItem(getText(R.string.good_rating_title).toString(), getText(R.string.good_rating_description).toString(), true),
+                new CheckFilterItem(getText(R.string.ok_rating_title).toString(), getText(R.string.ok_rating_description).toString(), false),
+                new CheckFilterItem(getText(R.string.meh_rating_title).toString(), getText(R.string.meh_rating_description).toString(), false),
+                new CheckFilterItem(getText(R.string.want_rating_title).toString(), getText(R.string.want_rating_description).toString(), false)
         );
         FilterItemList ratingFilter = new FilterItemList(getText(R.string.rating_filter_title).toString(), ratingFilterItems);
+
+        List<IViewableFilter> genreFilterItems = Arrays.asList(
+                new CheckFilterItem("American", null, true),
+                new CheckFilterItem("Cajun", null, false),
+                new CheckFilterItem("Chinese", null, true),
+                new CheckFilterItem("French", null, false),
+                new CheckFilterItem("German", null, false),
+                new CheckFilterItem("Global", null, false),
+                new CheckFilterItem("Italian", null, true),
+                new CheckFilterItem("Indian", null, false),
+                new CheckFilterItem("Korean", null, false),
+                new CheckFilterItem("Japanese", null, false),
+                new CheckFilterItem("Mexican", null, false)
+
+        );
+        FilterItemList genreFilter = new FilterItemList("Genre", genreFilterItems);
 
         List<IViewableFilter> otherFilterItems = Arrays.asList(
                 new ToggleFilterItem(getText(R.string.visited_title).toString(), getText(R.string.visited_description).toString()),
@@ -76,6 +92,8 @@ public class FiltersFragment extends Fragment {
         FilterItemList otherFilters = new FilterItemList(getText(R.string.other_filters_title).toString(), otherFilterItems);
 
         this.linearLayout.addView(ratingFilter.getView(getContext()));
+        this.linearLayout.addView(new Separator(getContext()));
+        this.linearLayout.addView(genreFilter.getView(getContext()));
         this.linearLayout.addView(new Separator(getContext()));
         this.linearLayout.addView(otherFilters.getView(getContext()));
         return view;

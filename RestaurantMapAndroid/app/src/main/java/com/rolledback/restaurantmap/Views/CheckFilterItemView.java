@@ -14,11 +14,12 @@ import com.rolledback.restaurantmap.R;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 
-public class CheckFilterItemView extends GridLayout {
+public class CheckFilterItemView extends GridLayout implements IHideable {
 
     private TextView title;
     private TextView description;
     private CheckBox checkBox;
+    private boolean _alwaysShow;
 
     public CheckFilterItemView(Context context) {
         super(context);
@@ -32,10 +33,29 @@ public class CheckFilterItemView extends GridLayout {
         this._readAttrs(attrsAsArr);
     }
 
-    public CheckFilterItemView(Context context, String title, String description) {
+    public CheckFilterItemView(Context context, String title, String description, boolean alwaysShow) {
         super(context);
         this._init();
+        this._alwaysShow = alwaysShow;
         this._setTextFields(title, description);
+    }
+
+    public boolean shouldAlwaysShow() {
+        return this._alwaysShow || this.checkBox.isChecked();
+    }
+
+    public void show() {
+        if (this.getVisibility() != VISIBLE) {
+            this.setVisibility(VISIBLE);
+            this.requestLayout();
+        }
+    }
+
+    public void hide() {
+        if (this.getVisibility() != GONE) {
+            this.setVisibility(GONE);
+            this.requestLayout();
+        }
     }
 
     private void _init() {
@@ -58,6 +78,10 @@ public class CheckFilterItemView extends GridLayout {
 
     private void _setTextFields(String title, String description) {
         this.title.setText(title);
-        this.description.setText(description);
+        if (description != null && description.length() > 0) {
+            this.description.setText(description);
+        } else {
+            this.description.setVisibility(GONE);
+        }
     }
 }
