@@ -4,6 +4,7 @@ RestaurantMapAPI/RestaurantMapAPI/bin/
 RestaurantMapAPI/RestaurantMapAPI/obj/
 RestaurantMapAPI/RestaurantMapAPI/appsettings.json
 RestaurantMapAPI/RestaurantMapAPI/Properties/
+RestaurantMapAPI/RestaurantMapAPI/*.db
 
 # Restaurant Map Website #
 RestaurantMapWebsite/.bin/

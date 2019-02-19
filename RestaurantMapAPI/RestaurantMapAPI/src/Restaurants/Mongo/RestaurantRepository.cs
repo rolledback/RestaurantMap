@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace RestaurantMapAPI
+namespace RestaurantMapAPI.Mongo
 {
     public class RestaurantRepository : IRestaurantRepository
     {
-        private readonly RestaurantsContext _context = null;
+        private readonly RestaurantsContext _context;
 
         public RestaurantRepository(IOptions<MongoDbSettings> settings)
         {
@@ -38,8 +38,8 @@ namespace RestaurantMapAPI
             try
             {
                 return await _context.Restaurants
-                                .Find(filter)
-                                .FirstOrDefaultAsync();
+                    .Find(filter)
+                    .FirstOrDefaultAsync();
             }
             catch (Exception ex)
             {
@@ -75,36 +75,5 @@ namespace RestaurantMapAPI
                 throw ex;
             }
         }
-
-        public async Task<bool> UpdateRestaurant(Restaurant item)
-        {
-            try
-            {
-                var filter = Builders<Restaurant>.Filter.Eq("_id", item._id);
-                ReplaceOneResult actionResult = await _context.Restaurants.ReplaceOneAsync(filter, item, new UpdateOptions { IsUpsert = true });
-                return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
-            }
-            catch (Exception ex)
-            {
-                // log or manage the exception
-                throw ex;
-            }
-        }
-
-        public async Task<bool> RemoveAllRestaurants()
-        {
-            try
-            {
-                DeleteResult actionResult = await _context.Restaurants.DeleteManyAsync(new BsonDocument());
-
-                return actionResult.IsAcknowledged && actionResult.DeletedCount > 0;
-            }
-            catch (Exception ex)
-            {
-                // log or manage the exception
-                throw ex;
-            }
-        }
-
     }
 }

@@ -41,7 +41,7 @@ namespace RestaurantMapAPI
                 options.Salt = Configuration.GetSection("SecretSettings:Salt").Value; ;
             });
 
-            services.AddTransient<IRestaurantRepository, RestaurantRepository>();
+            services.AddTransient<IRestaurantRepository, LiteDB.RestaurantRepository>();
             services.AddTransient<IUsersRepository, UsersRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
               .AddJwtBearer(options => {
@@ -59,6 +59,12 @@ namespace RestaurantMapAPI
                        };
               });
 
+            services.AddSingleton<IScheduledTask, BackupDbTask>();
+            services.AddScheduler((sender, args) =>
+            {
+                Console.Write(args.Exception.Message);
+                args.SetObserved();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
