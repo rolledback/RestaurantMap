@@ -27,10 +27,11 @@ namespace RestaurantMapAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.Configure<MongoDbSettings>(options =>
+
+            services.Configure<StorageSettings>(options =>
             {
-                options.ConnectionString = Configuration.GetSection("MongoConnection:ConnectionString").Value;
-                options.Database = Configuration.GetSection("MongoConnection:Database").Value;
+                options.AccountName = Configuration.GetSection("SecretSettings:BackupDbStorageAccountName").Value;
+                options.AccountKey = Configuration.GetSection("SecretSettings:BackupDbStorageAccountKey").Value;
             });
 
             var tokenIssuerSigningKey = Configuration.GetSection("SecretSettings:TokenIssuerSigningKey").Value;
@@ -42,7 +43,8 @@ namespace RestaurantMapAPI
             });
 
             services.AddTransient<IRestaurantRepository, LiteDB.RestaurantRepository>();
-            services.AddTransient<IUsersRepository, UsersRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IBackupDbService, BackupDbService>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
               .AddJwtBearer(options => {
                   options.TokenValidationParameters =

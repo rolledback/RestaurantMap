@@ -12,7 +12,7 @@ namespace RestaurantMapAPI.LiteDB
 
         public RestaurantContext()
         {
-            _database = new LiteDatabase("./RestaurantMap.Restaurants.db");
+            _database = new LiteDatabase("./RestaurantMap.db");
         }
 
         public LiteCollection<Restaurant> Restaurants

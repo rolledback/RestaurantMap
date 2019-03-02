@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace RestaurantMapAPI
 {
-    public class MongoDbSettings
+    public class StorageSettings
     {
-        public string ConnectionString;
-        public string Database;
+        public string AccountName;
+        public string AccountKey;
     }
 }

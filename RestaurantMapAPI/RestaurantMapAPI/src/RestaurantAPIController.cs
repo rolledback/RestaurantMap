@@ -14,10 +14,10 @@ namespace RestaurantMapAPI
     public class RestaurantAPIController
     {
         private readonly IRestaurantRepository _RestaurantRepository;
-        private readonly IUsersRepository _UsersRepository;
+        private readonly IUserRepository _UsersRepository;
         private readonly IOptions<SecretSettings> _SecretSettings;
 
-        public RestaurantAPIController(IRestaurantRepository RestaurantRepository, IUsersRepository UsersRepository, IOptions<SecretSettings> settings)
+        public RestaurantAPIController(IRestaurantRepository RestaurantRepository, IUserRepository UsersRepository, IOptions<SecretSettings> settings)
         {
             _RestaurantRepository = RestaurantRepository;
             _UsersRepository = UsersRepository;
@@ -77,12 +77,7 @@ namespace RestaurantMapAPI
         }
 
         [HttpGet("restaurants")]
-        public Task<IEnumerable<Restaurant>> GetRestaurants()
-        {
-            return GetRestaurantInternal();
-        }
-
-        private async Task<IEnumerable<Restaurant>> GetRestaurantInternal()
+        public async Task<IEnumerable<Restaurant>> GetRestaurants()
         {
             return await _RestaurantRepository.GetAllRestaurants();
         }
@@ -91,8 +86,7 @@ namespace RestaurantMapAPI
         [HttpPost("restaurants")]
         public void AddRestaurant([FromBody]Restaurant value)
         {
-            value._id = new MongoDB.Bson.ObjectId();
-            _RestaurantRepository.AddRestaurant(value);
+           _RestaurantRepository.AddRestaurant(value);
         }
 
         [HttpPost("login")]

@@ -10,16 +10,20 @@ namespace RestaurantMapAPI
     {
         public string Schedule => "*/1 * * * *";
         private readonly IRestaurantRepository _RestaurantRepository;
+        private readonly IUserRepository _UserRepository;
+        private readonly IBackupDbService _BackupService;
 
-        public BackupDbTask(IRestaurantRepository RestaurantRepository)
+        public BackupDbTask(IRestaurantRepository RestaurantRepository, IUserRepository UserRepository, IBackupDbService BackupDbService)
         {
             _RestaurantRepository = RestaurantRepository;
+            _UserRepository = UserRepository;
+            _BackupService = BackupDbService;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var x = await _RestaurantRepository.GetAllRestaurants();
-            return;
+            await _BackupService.Backup(_UserRepository);
+            await _BackupService.Backup(_RestaurantRepository);
         }
     }
 }

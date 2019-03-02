@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson;
+﻿using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace RestaurantMapAPI
 {
     public class Restaurant
     {
-        public ObjectId _id { get; set; }
+        public int id { get; set; }
         public string name { get; set; }
         public string genre { get; set; }
 

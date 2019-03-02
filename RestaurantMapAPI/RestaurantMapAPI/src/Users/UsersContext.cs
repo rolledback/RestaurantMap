@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using MongoDB.Driver;
+﻿using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +8,14 @@ namespace RestaurantMapAPI
 {
     public class UsersContext
     {
-        private readonly IMongoDatabase _database = null;
+        private readonly LiteDatabase _database;
 
-        public UsersContext(IOptions<MongoDbSettings> settings)
+        public UsersContext()
         {
-            var client = new MongoClient(settings.Value.ConnectionString);
-            if (client != null)
-            {
-                _database = client.GetDatabase(settings.Value.Database);
-            }
+            _database = new LiteDatabase("./RestaurantMap.db");
         }
 
-        public IMongoCollection<User> Users
+        public LiteCollection<User> Users
         {
             get
             {

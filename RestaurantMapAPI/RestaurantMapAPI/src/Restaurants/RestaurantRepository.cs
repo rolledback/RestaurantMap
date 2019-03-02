@@ -1,28 +1,27 @@
-﻿using System;
+﻿using LiteDB;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
-namespace RestaurantMapAPI.Mongo
+namespace RestaurantMapAPI.LiteDB
 {
     public class RestaurantRepository : IRestaurantRepository
     {
-        private readonly RestaurantsContext _context;
+        private readonly RestaurantContext _context;
 
-        public RestaurantRepository(IOptions<MongoDbSettings> settings)
+        public RestaurantRepository()
         {
-            _context = new RestaurantsContext(settings);
+            _context = new RestaurantContext();
         }
 
         public async Task<IEnumerable<Restaurant>> GetAllRestaurants()
         {
             try
             {
-                return await _context.Restaurants
-                        .Find(_ => true).ToListAsync();
+                return _context.Restaurants
+                        .Find(_ => true).ToList();
             }
             catch (Exception ex)
             {
@@ -33,13 +32,13 @@ namespace RestaurantMapAPI.Mongo
 
         public async Task<Restaurant> GetRestaurant(string id)
         {
-            var filter = Builders<Restaurant>.Filter.Eq(r => r._id.ToString(), id);
-
             try
             {
-                return await _context.Restaurants
+                var filter = Query.EQ("Id", id);
+
+                return _context.Restaurants
                     .Find(filter)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -52,7 +51,7 @@ namespace RestaurantMapAPI.Mongo
         {
             try
             {
-                await _context.Restaurants.InsertOneAsync(item);
+                _context.Restaurants.Insert(item);
             }
             catch (Exception ex)
             {
@@ -65,15 +64,31 @@ namespace RestaurantMapAPI.Mongo
         {
             try
             {
-                DeleteResult actionResult = await _context.Restaurants.DeleteOneAsync(Builders<Restaurant>.Filter.Eq("Id", id));
+                int deletedDocs = _context.Restaurants.Delete(Query.EQ("Id", id));
 
-                return actionResult.IsAcknowledged && actionResult.DeletedCount > 0;
+                return deletedDocs > 0;
             }
             catch (Exception ex)
             {
                 // log or manage the exception
                 throw ex;
             }
+        }
+
+        public Task<IEnumerable<Restaurant>> GetAllForBackup()
+        {
+            return GetAllRestaurants();
+        }
+
+        public void RestoreFromBackup(IEnumerable<Restaurant> backup)
+        {
+            _context.Restaurants.Delete(_ => true);
+            _context.Restaurants.InsertBulk(backup);
+        }
+
+        public string GetBackupName()
+        {
+            return "restaurants.json";
         }
     }
 }

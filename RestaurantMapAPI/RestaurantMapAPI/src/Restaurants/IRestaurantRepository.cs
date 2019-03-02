@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace RestaurantMapAPI
 {
-    public interface IRestaurantRepository
+    public interface IRestaurantRepository : IBackupable<Restaurant>
     {
         Task<IEnumerable<Restaurant>> GetAllRestaurants();
+
         Task<Restaurant> GetRestaurant(string id);
 
         Task AddRestaurant(Restaurant item);
