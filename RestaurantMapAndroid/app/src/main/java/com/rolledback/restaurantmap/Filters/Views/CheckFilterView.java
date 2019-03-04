@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
@@ -18,6 +20,7 @@ public class CheckFilterView extends GridLayout implements IFilterView<CheckFilt
     private TextView _description;
     private CheckBox _checkBox;
     private boolean _alwaysShow;
+    private IFilterViewChangeListener _listener;
 
     public CheckFilterView(Context context) {
         super(context);
@@ -65,11 +68,16 @@ public class CheckFilterView extends GridLayout implements IFilterView<CheckFilt
         }
     }
 
+    public void setChangeListener(IFilterViewChangeListener listener) {
+        this._listener = listener;
+    }
+
     private void _init() {
         LayoutInflater.from(getContext()).inflate(R.layout.check_filter, this);
         this._title = findViewById(R.id.title);
         this._description = findViewById(R.id.description);
         this._checkBox = findViewById(R.id.check_box);
+        this._checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> _listener.callback());
         findViewById(R.id.grid_layout).setOnClickListener(v -> _checkBox.setChecked(!_checkBox.isChecked()));
     }
 

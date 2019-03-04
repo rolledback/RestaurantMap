@@ -10,4 +10,5 @@ public interface IFilterView<T extends IViewableFilter> {
     boolean shouldAlwaysShow();
     void show();
     void hide();
+    void setChangeListener(IFilterViewChangeListener listener);
 }

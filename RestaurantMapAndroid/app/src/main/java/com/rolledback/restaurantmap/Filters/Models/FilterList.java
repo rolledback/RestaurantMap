@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.view.View;
 
 import com.rolledback.restaurantmap.Filters.Views.FilterListView;
+import com.rolledback.restaurantmap.Filters.Views.IFilterView;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +22,8 @@ public class FilterList<T extends IViewableFilter> implements IViewableFilter {
     }
 
     @Override
-    public View getView(Context context) {
-        List<View> itemViews = this._children.stream().map(i -> i.getView(context)).collect(Collectors.toList());
+    public FilterListView getView(Context context) {
+        List<IFilterView> itemViews = this._children.stream().map(i -> i.getView(context)).collect(Collectors.toList());
         return new FilterListView(context, this._title, itemViews);
     }
 

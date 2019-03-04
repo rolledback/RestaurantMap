@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.GridLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ public class ToggleFilterView extends GridLayout implements IFilterView<ToggleFi
     private TextView _description;
     private Switch _toggle;
     private boolean _alwaysShow;
+    private IFilterViewChangeListener _listener;
 
     public ToggleFilterView(Context context) {
         super(context);
@@ -65,11 +67,17 @@ public class ToggleFilterView extends GridLayout implements IFilterView<ToggleFi
         }
     }
 
+    public void setChangeListener(IFilterViewChangeListener listener) {
+        this._listener = listener;
+    }
+
     private void _init() {
         LayoutInflater.from(getContext()).inflate(R.layout.toggle_filter, this);
         this._title = findViewById(R.id.title);
         this._description =findViewById(R.id.description);
         this._toggle = findViewById(R.id.toggle);
+        this._toggle.setOnCheckedChangeListener((buttonView, isChecked) -> _listener.callback());
+        this.setOnTouchListener((v, event) -> _listener.callback());
         findViewById(R.id.grid_layout).setOnClickListener(v -> _toggle.setChecked(!_toggle.isChecked()));
     }
 

@@ -2,14 +2,18 @@ package com.rolledback.restaurantmap;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
+import com.rolledback.restaurantmap.Filters.Views.IFilterView;
 import com.rolledback.restaurantmap.Filters.Views.Separator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
@@ -18,15 +22,15 @@ import androidx.fragment.app.Fragment;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FiltersFragment.OnFragmentInteractionListener} interface
+ * {@link IFiltersChangedListener} interface
  * to handle interaction events.
  * Use the {@link FiltersFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class FiltersFragment extends Fragment {
-    private OnFragmentInteractionListener mListener;
+    private IFiltersChangedListener filtersChangedListener;
     private LinearLayout linearLayout;
-    private List<IViewableFilter> filters;
+    private List<IFilterView> filterViews;
 
     public FiltersFragment() {
     }
@@ -53,11 +57,25 @@ public class FiltersFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_filters, container, false);
         this.linearLayout = view.findViewById(R.id.linear_layout);
+        this.filterViews = new ArrayList<>();
 
-        this.filters = (List<IViewableFilter>)getArguments().get("filters");
-        for (int i = 0; i < this.filters.size(); i++) {
-            this.linearLayout.addView(this.filters.get(i).getView(getContext()));
-            if (i != this.filters.size() - 1) {
+        List<IViewableFilter> filters = (List<IViewableFilter>)getArguments().get("filters");
+
+        for (int i = 0; i < filters.size(); i++) {
+            IViewableFilter filter = filters.get(i);
+            IFilterView filterView = filter.getView(getContext());
+            this.linearLayout.addView(filterView.asView());
+            this.filterViews.add(filterView);
+
+            filterView.setChangeListener(() -> {
+                ArrayList<IViewableFilter> newFilters = new ArrayList<IViewableFilter>();
+                for (int j = 0; j < this.filterViews.size(); j++) {
+                    newFilters.add(this.filterViews.get(j).asModel());
+                }
+                filtersChangedListener.onFiltersChanged(newFilters);
+                return true;
+            });
+            if (i != this.filterViews.size() - 1) {
                 this.linearLayout.addView(new Separator(getContext()));
             }
         }
@@ -69,8 +87,8 @@ public class FiltersFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof IFiltersChangedListener) {
+            filtersChangedListener = (IFiltersChangedListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
         }
@@ -79,19 +97,6 @@ public class FiltersFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
+        filtersChangedListener = null;
     }
 }

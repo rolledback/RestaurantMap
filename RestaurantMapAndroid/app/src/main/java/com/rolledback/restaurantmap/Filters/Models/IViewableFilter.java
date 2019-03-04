@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Parcelable;
 import android.view.View;
 
+import com.rolledback.restaurantmap.Filters.Views.IFilterView;
+
 public interface IViewableFilter extends Parcelable {
-    View getView(Context context);
+    IFilterView getView(Context context);
 }

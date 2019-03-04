@@ -9,7 +9,11 @@ import android.widget.FrameLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
+import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
+import com.rolledback.restaurantmap.Map.RestaurantMap;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, FiltersFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, IFiltersChangedListener {
     private static int LocPermissionReqCode = 1994;
     private GoogleMap mMap;
     private RestaurantMap restaurantMap;
@@ -91,5 +95,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         transaction.setCustomAnimations(R.anim.slide_up, R.anim.slide_down, R.anim.slide_up, R.anim.slide_down);
         transaction.addToBackStack(null);
         transaction.add(R.id.filters_fragment_container, filtersFragment, "FILTERS_FRAGMENT").commit();
+    }
+
+    @Override
+    public void onFiltersChanged(ArrayList<IViewableFilter> filters) {
+        this.restaurantMap.applyFilters(filters);
     }
 }

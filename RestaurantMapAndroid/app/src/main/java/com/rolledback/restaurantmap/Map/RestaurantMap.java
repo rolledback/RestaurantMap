@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.Map;
 
 import android.Manifest;
 import android.content.Context;
@@ -17,6 +17,9 @@ import com.rolledback.restaurantmap.Filters.Models.CheckFilter;
 import com.rolledback.restaurantmap.Filters.Models.FilterList;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Filters.Models.ToggleFilter;
+import com.rolledback.restaurantmap.Location;
+import com.rolledback.restaurantmap.R;
+import com.rolledback.restaurantmap.Restaurant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
