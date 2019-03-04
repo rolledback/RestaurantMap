@@ -8,7 +8,7 @@ namespace RestaurantMapAPI
 {
     public class BackupDbTask : IScheduledTask
     {
-        public string Schedule => "*/1 * * * *";
+        public string Schedule => "0 */12 * * *";
         private readonly IRestaurantRepository _RestaurantRepository;
         private readonly IUserRepository _UserRepository;
         private readonly IBackupDbService _BackupService;

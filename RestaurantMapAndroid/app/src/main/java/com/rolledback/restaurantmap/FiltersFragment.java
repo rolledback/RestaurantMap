@@ -7,14 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.rolledback.restaurantmap.Models.CheckFilterItem;
-import com.rolledback.restaurantmap.Models.FilterItemList;
-import com.rolledback.restaurantmap.Models.IViewableFilter;
-import com.rolledback.restaurantmap.Models.ToggleFilterItem;
-import com.rolledback.restaurantmap.Views.FilterItemListView;
-import com.rolledback.restaurantmap.Views.Separator;
+import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
+import com.rolledback.restaurantmap.Filters.Views.Separator;
 
-import java.util.Arrays;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
@@ -31,9 +26,9 @@ import androidx.fragment.app.Fragment;
 public class FiltersFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private LinearLayout linearLayout;
+    private List<IViewableFilter> filters;
 
     public FiltersFragment() {
-        // Required empty public constructor
     }
 
     /**
@@ -59,43 +54,14 @@ public class FiltersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_filters, container, false);
         this.linearLayout = view.findViewById(R.id.linear_layout);
 
-        List<IViewableFilter> ratingFilterItems = Arrays.asList(
-                new CheckFilterItem(getText(R.string.best_rating_title).toString(), getText(R.string.best_rating_description).toString(), true),
-                new CheckFilterItem(getText(R.string.better_rating_title).toString(), getText(R.string.better_rating_description).toString(), true),
-                new CheckFilterItem(getText(R.string.good_rating_title).toString(), getText(R.string.good_rating_description).toString(), true),
-                new CheckFilterItem(getText(R.string.ok_rating_title).toString(), getText(R.string.ok_rating_description).toString(), false),
-                new CheckFilterItem(getText(R.string.meh_rating_title).toString(), getText(R.string.meh_rating_description).toString(), false),
-                new CheckFilterItem(getText(R.string.want_rating_title).toString(), getText(R.string.want_rating_description).toString(), false)
-        );
-        FilterItemList ratingFilter = new FilterItemList(getText(R.string.rating_filter_title).toString(), ratingFilterItems);
+        this.filters = (List<IViewableFilter>)getArguments().get("filters");
+        for (int i = 0; i < this.filters.size(); i++) {
+            this.linearLayout.addView(this.filters.get(i).getView(getContext()));
+            if (i != this.filters.size() - 1) {
+                this.linearLayout.addView(new Separator(getContext()));
+            }
+        }
 
-        List<IViewableFilter> genreFilterItems = Arrays.asList(
-                new CheckFilterItem("American", null, true),
-                new CheckFilterItem("Cajun", null, false),
-                new CheckFilterItem("Chinese", null, true),
-                new CheckFilterItem("French", null, false),
-                new CheckFilterItem("German", null, false),
-                new CheckFilterItem("Global", null, false),
-                new CheckFilterItem("Italian", null, true),
-                new CheckFilterItem("Indian", null, false),
-                new CheckFilterItem("Korean", null, false),
-                new CheckFilterItem("Japanese", null, false),
-                new CheckFilterItem("Mexican", null, false)
-
-        );
-        FilterItemList genreFilter = new FilterItemList("Genre", genreFilterItems);
-
-        List<IViewableFilter> otherFilterItems = Arrays.asList(
-                new ToggleFilterItem(getText(R.string.visited_title).toString(), getText(R.string.visited_description).toString()),
-                new ToggleFilterItem(getText(R.string.single_title).toString(), getText(R.string.single_description).toString())
-        );
-        FilterItemList otherFilters = new FilterItemList(getText(R.string.other_filters_title).toString(), otherFilterItems);
-
-        this.linearLayout.addView(ratingFilter.getView(getContext()));
-        this.linearLayout.addView(new Separator(getContext()));
-        this.linearLayout.addView(genreFilter.getView(getContext()));
-        this.linearLayout.addView(new Separator(getContext()));
-        this.linearLayout.addView(otherFilters.getView(getContext()));
         return view;
     }
 

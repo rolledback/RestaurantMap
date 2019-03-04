@@ -5,6 +5,7 @@
     <ApplicationInsightsResourceId>/subscriptions/d28476d7-53dc-44cb-8d3b-1af2b29658fb/resourcegroups/RestaurantMap/providers/microsoft.insights/components/RestaurantMapAPI</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/d28476d7-53dc-44cb-8d3b-1af2b29658fb/resourceGroups/RestaurantMap/providers/microsoft.insights/components/RestaurantMapAPI</ApplicationInsightsAnnotationResourceId>
     <LangVersion>7.3</LangVersion>
+    <UserSecretsId>267aa610-38f7-4da7-a333-4618a9efcd28</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

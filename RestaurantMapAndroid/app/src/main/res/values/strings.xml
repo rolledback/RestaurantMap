@@ -2,7 +2,7 @@
     <string name="app_name">Restaurant Map</string>
     <string name="title_activity_main">Restaurant Map</string>
     <string name="filter_button_label">Filter</string>
-    <string name="rating_filter_title">Restaurant Rating</string>
+    <string name="rating_filter_title">Rating</string>
     <string name="ok_rating_title">Ok</string>
     <string name="ok_rating_description">The bare minimum of what is considered worth going to. These should not be your first choice. That being said, they definitely aren\'t bad.</string>
     <string name="good_rating_title">Good</string>
@@ -21,4 +21,5 @@
     <string name="single_title">Single Location</string>
     <string name="single_description">Whether or not the restaurant has only one location.</string>
     <string name="show_more_ratings">Show more ratings</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>

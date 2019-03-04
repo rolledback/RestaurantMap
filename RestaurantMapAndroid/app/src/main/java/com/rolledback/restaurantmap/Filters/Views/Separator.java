@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap.Views;
+package com.rolledback.restaurantmap.Filters.Views;
 
 import android.content.Context;
 import android.graphics.Color;
