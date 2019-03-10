@@ -63,7 +63,6 @@ namespace RestaurantMapAPI
             }
 
             location.address += " " + business.Location.City + " " + business.Location.State;
-            location.reviewSites = new List<string> { business.Url.Split('?')[0] };
 
             var restaurant = new Restaurant();
             restaurant.name = business.Name;
@@ -71,7 +70,8 @@ namespace RestaurantMapAPI
             restaurant.subGenre = "";
             restaurant.description = "";
             restaurant.rating = "";
-            restaurant.locations = new List<Location>{ location };
+            restaurant.location = location;
+            restaurant.reviewSites = new List<string> { business.Url.Split('?')[0] };
 
             return restaurant;
         }

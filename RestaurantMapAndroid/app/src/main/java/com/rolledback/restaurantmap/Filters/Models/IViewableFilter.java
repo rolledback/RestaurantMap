@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.rolledback.restaurantmap.Filters.Views.IFilterView;
 
-public interface IViewableFilter extends Parcelable {
+public interface IViewableFilter<T> extends Parcelable {
     IFilterView getView(Context context);
+    T getValue();
 }

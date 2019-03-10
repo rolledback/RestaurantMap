@@ -13,8 +13,6 @@ import com.rolledback.restaurantmap.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlin.NotImplementedError;
-
 public class FilterListView<T extends IFilterView> extends LinearLayout implements IFilterView<FilterList> {
 
     private TextView _title;
@@ -75,11 +73,11 @@ public class FilterListView<T extends IFilterView> extends LinearLayout implemen
     }
 
     public void show() {
-        throw new NotImplementedError();
+        return;
     }
 
     public void hide() {
-        throw new NotImplementedError();
+        return;
     }
 
     public void setChangeListener(IFilterViewChangeListener listener) {

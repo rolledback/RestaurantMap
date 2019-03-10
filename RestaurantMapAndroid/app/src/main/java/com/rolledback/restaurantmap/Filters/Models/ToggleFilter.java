@@ -3,10 +3,11 @@ package com.rolledback.restaurantmap.Filters.Models;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Pair;
 
 import com.rolledback.restaurantmap.Filters.Views.ToggleFilterView;
 
-public class ToggleFilter implements IViewableFilter {
+public class ToggleFilter implements IViewableFilter<Pair<String, Boolean>> {
     private String _title;
     private String _description;
     private boolean _checked;
@@ -21,6 +22,11 @@ public class ToggleFilter implements IViewableFilter {
 
     public ToggleFilterView getView(Context context) {
         return new ToggleFilterView(context, this._title, this._description, this._checked, this._alwaysShow);
+    }
+
+    @Override
+    public Pair<String, Boolean> getValue() {
+        return new Pair<String, Boolean>(this._title, this._checked);
     }
 
     /**
@@ -50,5 +56,9 @@ public class ToggleFilter implements IViewableFilter {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this._title);
         dest.writeString(this._description);
+    }
+
+    public String getTitle() {
+        return this._title;
     }
 }

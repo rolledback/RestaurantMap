@@ -70,6 +70,7 @@ public class CheckFilterView extends GridLayout implements IFilterView<CheckFilt
 
     public void setChangeListener(IFilterViewChangeListener listener) {
         this._listener = listener;
+        this._checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> _listener.callback());
     }
 
     private void _init() {
@@ -77,7 +78,6 @@ public class CheckFilterView extends GridLayout implements IFilterView<CheckFilt
         this._title = findViewById(R.id.title);
         this._description = findViewById(R.id.description);
         this._checkBox = findViewById(R.id.check_box);
-        this._checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> _listener.callback());
         findViewById(R.id.grid_layout).setOnClickListener(v -> _checkBox.setChecked(!_checkBox.isChecked()));
     }
 

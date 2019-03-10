@@ -14,7 +14,10 @@ import com.rolledback.restaurantmap.Filters.Views.IFilterView;
 import com.rolledback.restaurantmap.Filters.Views.Separator;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import androidx.fragment.app.Fragment;
 
@@ -30,7 +33,7 @@ import androidx.fragment.app.Fragment;
 public class FiltersFragment extends Fragment {
     private IFiltersChangedListener filtersChangedListener;
     private LinearLayout linearLayout;
-    private List<IFilterView> filterViews;
+    private LinkedHashMap<String, IFilterView> filterViews;
 
     public FiltersFragment() {
     }
@@ -57,27 +60,31 @@ public class FiltersFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_filters, container, false);
         this.linearLayout = view.findViewById(R.id.linear_layout);
-        this.filterViews = new ArrayList<>();
+        this.filterViews = new LinkedHashMap<>();
 
-        List<IViewableFilter> filters = (List<IViewableFilter>)getArguments().get("filters");
+        LinkedHashMap<String, IViewableFilter> filters = (LinkedHashMap<String, IViewableFilter>)getArguments().getSerializable("filters");
 
-        for (int i = 0; i < filters.size(); i++) {
-            IViewableFilter filter = filters.get(i);
+        int mapSize = filters.size();
+        int i = 0;
+
+        Iterator fIt = filters.entrySet().iterator();
+        while (fIt.hasNext()) {
+            Map.Entry<String, IViewableFilter> pair = (Map.Entry)fIt.next();
+            IViewableFilter filter = pair.getValue();
             IFilterView filterView = filter.getView(getContext());
             this.linearLayout.addView(filterView.asView());
-            this.filterViews.add(filterView);
-
-            filterView.setChangeListener(() -> {
-                ArrayList<IViewableFilter> newFilters = new ArrayList<IViewableFilter>();
-                for (int j = 0; j < this.filterViews.size(); j++) {
-                    newFilters.add(this.filterViews.get(j).asModel());
-                }
-                filtersChangedListener.onFiltersChanged(newFilters);
-                return true;
-            });
-            if (i != this.filterViews.size() - 1) {
+            this.filterViews.put(pair.getKey(), filterView);
+            if (i != mapSize - 1) {
                 this.linearLayout.addView(new Separator(getContext()));
             }
+            i++;
+        }
+
+        Iterator fvIt = filterViews.entrySet().iterator();
+        while (fvIt.hasNext()) {
+            Map.Entry<String, IFilterView> pair = (Map.Entry)fvIt.next();
+            IFilterView filterView = pair.getValue();
+            filterView.setChangeListener(() -> this._sendChangedFilters());
         }
 
         return view;
@@ -98,5 +105,20 @@ public class FiltersFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         filtersChangedListener = null;
+    }
+
+    private boolean _sendChangedFilters() {
+        LinkedHashMap<String, IViewableFilter> newFilters = new LinkedHashMap<String, IViewableFilter>();
+
+        Iterator fvIt = filterViews.entrySet().iterator();
+        while (fvIt.hasNext()) {
+            Map.Entry<String, IFilterView> pair = (Map.Entry)fvIt.next();
+            IFilterView filterView = pair.getValue();
+            newFilters.put(pair.getKey(), filterView.asModel());
+        }
+
+        filtersChangedListener.onFiltersChanged(newFilters);
+
+        return true;
     }
 }

@@ -2,16 +2,22 @@ package com.rolledback.restaurantmap.Map;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFilterable;
 import com.rolledback.restaurantmap.Filters.Models.CheckFilter;
 import com.rolledback.restaurantmap.Filters.Models.FilterList;
@@ -21,20 +27,27 @@ import com.rolledback.restaurantmap.Location;
 import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.Restaurant;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Filter;
 
 import androidx.core.content.ContextCompat;
 
 public class RestaurantMap implements IFilterable {
     private Context _context;
     private GoogleMap _map;
+    private ArrayList<RestaurantMarker> _markers;
+    private FilterManager filterManager;
 
     public RestaurantMap(Context context, GoogleMap map) {
         this._context = context;
         this._map = map;
+        this._markers = new ArrayList<>();
+        this.filterManager = new FilterManager(context);
     }
 
     public boolean moveToStartingLocation() {
@@ -69,63 +82,50 @@ public class RestaurantMap implements IFilterable {
         Iterator<Restaurant> rItr = restaurants.iterator();
         while (rItr.hasNext()) {
             Restaurant rCurr = rItr.next();
-            Iterator<Location> lItr = rCurr.locations.iterator();
-            while (lItr.hasNext()) {
-                Location lCurr = lItr.next();
-                this._map.addMarker(new MarkerOptions()
-                        .position(new LatLng(lCurr.lat, lCurr.lng))
-                        .title(rCurr.name)
-                        .icon(BitmapDescriptorFactory.defaultMarker(this._getMarkerColor(rCurr))));
-            }
+            Location location = rCurr.location;
+            MarkerOptions mOp = new MarkerOptions()
+                    .position(new LatLng(location.lat, location.lng))
+                    .title(rCurr.name)
+                    .icon(BitmapDescriptorFactory.defaultMarker(this._getMarkerColor(rCurr)));
+            Marker marker = this._map.addMarker(mOp);
+            this._markers.add(new RestaurantMarker(marker, rCurr));
         }
+        this.filterManager.initFilters(restaurants);;
+    }
+
+    public void saveToCache(List<Restaurant> restaurants) {
+        SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this._context);
+        SharedPreferences.Editor prefsEditor = appSharedPref.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(restaurants);
+        prefsEditor.putString("RESTAURANT_CACHE", json);
+        prefsEditor.commit();
     }
 
     public void loadFromCache() {
-
+        SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this._context);
+        Gson gson = new Gson();
+        String json = appSharedPref.getString("RESTAURANT_CACHE", "");
+        Type type = new TypeToken<List<Restaurant>>(){}.getType();
+        List<Restaurant> restaurants = gson.fromJson(json, type);
+        this.addItems(restaurants);
     }
 
-    public void applyFilters(ArrayList<IViewableFilter> filters) {
-
+    public void applyFilters(LinkedHashMap<String, IViewableFilter> filters) {
+        Iterator<RestaurantMarker> mItr = this._markers.iterator();
+        while (mItr.hasNext()) {
+            RestaurantMarker mCurr = mItr.next();
+            if (mCurr.shouldShow(filters)) {
+                mCurr.show();
+            } else {
+                mCurr.hide();
+            }
+        }
+        this.filterManager.setCurrentFilters(filters);
     }
 
-    public ArrayList<IViewableFilter> getCurrentFilters() {
-        List<CheckFilter> ratingFilterItems = Arrays.asList(
-                new CheckFilter(this._context.getText(R.string.best_rating_title).toString(), this._context.getText(R.string.best_rating_description).toString(), false, true),
-                new CheckFilter(this._context.getText(R.string.better_rating_title).toString(), this._context.getText(R.string.better_rating_description).toString(), false, true),
-                new CheckFilter(this._context.getText(R.string.good_rating_title).toString(), this._context.getText(R.string.good_rating_description).toString(), false, true),
-                new CheckFilter(this._context.getText(R.string.ok_rating_title).toString(), this._context.getText(R.string.ok_rating_description).toString(), false, false),
-                new CheckFilter(this._context.getText(R.string.meh_rating_title).toString(), this._context.getText(R.string.meh_rating_description).toString(), false, false),
-                new CheckFilter(this._context.getText(R.string.want_rating_title).toString(), this._context.getText(R.string.want_rating_description).toString(), false, false)
-        );
-        FilterList ratingFilter = new FilterList(this._context.getText(R.string.rating_filter_title).toString(), ratingFilterItems);
-
-        List<CheckFilter> genreFilterItems = Arrays.asList(
-                new CheckFilter("American", null, false, true),
-                new CheckFilter("Cajun", null, false, false),
-                new CheckFilter("Chinese", null, false, true),
-                new CheckFilter("French", null, false, false),
-                new CheckFilter("German", null, false, false),
-                new CheckFilter("Global", null, false, false),
-                new CheckFilter("Italian", null, false, true),
-                new CheckFilter("Indian", null, false, false),
-                new CheckFilter("Korean", null, false, false),
-                new CheckFilter("Japanese", null, false, false),
-                new CheckFilter("Mexican", null, false, false)
-        );
-        FilterList genreFilter = new FilterList("Genre", genreFilterItems);
-
-        List<IViewableFilter> otherFilterItems = Arrays.asList(
-                new ToggleFilter(this._context.getText(R.string.visited_title).toString(), this._context.getText(R.string.visited_description).toString(), false, true),
-                new ToggleFilter(this._context.getText(R.string.single_title).toString(), this._context.getText(R.string.single_description).toString(), false, true)
-        );
-        FilterList otherFilters = new FilterList(this._context.getText(R.string.other_filters_title).toString(), otherFilterItems);
-
-        ArrayList<IViewableFilter> filters = new ArrayList<IViewableFilter>();
-        filters.add(ratingFilter);
-        filters.add(genreFilter);
-        filters.add(otherFilters);
-
-        return filters;
+    public LinkedHashMap<String, IViewableFilter> getCurrentFilters() {
+        return this.filterManager.getCurrentFilters();
     }
 
     private float _getMarkerColor(Restaurant restaurant) {

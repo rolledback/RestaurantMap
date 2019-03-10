@@ -2,9 +2,15 @@ package com.rolledback.restaurantmap;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -14,10 +20,13 @@ import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Map.RestaurantMap;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -65,10 +74,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onSuccess(List<Restaurant> response) {
                 restaurantMap.addItems(response);
+                restaurantMap.saveToCache(response);
             }
 
             @Override
             public void onFailure(String error) {
+                _showFailureToast();
                 restaurantMap.loadFromCache();
             }
         });
@@ -87,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         FiltersFragment filtersFragment = FiltersFragment.newInstance();
 
         Bundle args = new Bundle();
-        args.putParcelableArrayList("filters", this.restaurantMap.getCurrentFilters());
+        args.putSerializable("filters", this.restaurantMap.getCurrentFilters());
         filtersFragment.setArguments(args);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -98,7 +109,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onFiltersChanged(ArrayList<IViewableFilter> filters) {
+    public void onFiltersChanged(LinkedHashMap<String, IViewableFilter> filters) {
         this.restaurantMap.applyFilters(filters);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        menu.add(0, 0, 0, "History").setIcon(R.drawable.account_circle)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        Drawable drawable = menu.getItem(0).getIcon();
+        if(drawable != null) {
+            drawable.mutate();
+            drawable.setColorFilter(0xffffff, PorterDuff.Mode.SRC_ATOP);
+        }
+
+        return true;
+    }
+
+    private void _showFailureToast() {
+        CharSequence text = "Failed to reach server. Loading restaurants from cache.";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(this, text, duration);
+        toast.show();
     }
 }

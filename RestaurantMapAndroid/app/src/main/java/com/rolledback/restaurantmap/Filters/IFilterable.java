@@ -2,9 +2,9 @@ package com.rolledback.restaurantmap.Filters;
 
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public interface IFilterable {
-    void applyFilters(ArrayList<IViewableFilter> filters);
-    ArrayList<IViewableFilter> getCurrentFilters();
+    void applyFilters(LinkedHashMap<String, IViewableFilter> filters);
+    LinkedHashMap<String, IViewableFilter> getCurrentFilters();
 }

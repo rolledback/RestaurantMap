@@ -3,10 +3,11 @@ package com.rolledback.restaurantmap.Filters.Models;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Pair;
 
 import com.rolledback.restaurantmap.Filters.Views.CheckFilterView;
 
-public class CheckFilter implements IViewableFilter {
+public class CheckFilter implements IViewableFilter<Pair<String, Boolean>> {
 
     private String _title;
     private String _description;
@@ -22,6 +23,11 @@ public class CheckFilter implements IViewableFilter {
 
     public CheckFilterView getView(Context context) {
         return new CheckFilterView(context, this._title, this._description, this._checked, this._alwaysShow);
+    }
+
+    @Override
+    public Pair<String, Boolean> getValue() {
+        return new Pair<String, Boolean>(this._title, this._checked);
     }
 
     /**
@@ -53,5 +59,9 @@ public class CheckFilter implements IViewableFilter {
         dest.writeString(this._title);
         dest.writeString(this._description);
         dest.writeByte(this._alwaysShow ? (byte)1 : (byte)0);
+    }
+
+    public String getTitle() {
+        return this._title;
     }
 }

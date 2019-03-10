@@ -8,5 +8,7 @@ public class Restaurant {
     public String subGenre;
     public String description;
     public String rating;
-    public List<Location> locations;
+    public Location location;
+    public List<String> reviewSites;
+    public boolean hasOtherLocations;
 }

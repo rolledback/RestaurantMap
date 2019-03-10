@@ -15,7 +15,9 @@ namespace RestaurantMapAPI
         public string subGenre { get; set; }
         public string description { get; set; }
         public string rating { get; set; }
-        public IEnumerable<Location> locations { get; set; }
+        public Location location { get; set; }
+        public IEnumerable<string> reviewSites { get; set; }
+        public bool hasOtherLocations { get; set; }
     }
 
     public class Location
@@ -23,8 +25,6 @@ namespace RestaurantMapAPI
         public string address { get; set; }
         public double lat { get; set; }
         public double lng { get; set; }
-        public IEnumerable<string> reviewSites { get; set; }
-        public bool visited { get; set; }
     }
 
     public class ReviewSite

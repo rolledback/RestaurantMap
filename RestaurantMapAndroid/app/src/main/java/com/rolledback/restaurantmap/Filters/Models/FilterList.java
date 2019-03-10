@@ -3,15 +3,15 @@ package com.rolledback.restaurantmap.Filters.Models;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.view.View;
 
 import com.rolledback.restaurantmap.Filters.Views.FilterListView;
 import com.rolledback.restaurantmap.Filters.Views.IFilterView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FilterList<T extends IViewableFilter> implements IViewableFilter {
+public class FilterList<U, T extends IViewableFilter<U>> implements IViewableFilter<ArrayList<U>> {
 
     private String _title;
     private List<T> _children;
@@ -25,6 +25,15 @@ public class FilterList<T extends IViewableFilter> implements IViewableFilter {
     public FilterListView getView(Context context) {
         List<IFilterView> itemViews = this._children.stream().map(i -> i.getView(context)).collect(Collectors.toList());
         return new FilterListView(context, this._title, itemViews);
+    }
+
+    @Override
+    public ArrayList<U> getValue() {
+        ArrayList<U> retValue = new ArrayList<>();
+        for (int i = 0; i < this._children.size(); i++) {
+            retValue.add(this._children.get(i).getValue());
+        }
+        return retValue;
     }
 
     /**
