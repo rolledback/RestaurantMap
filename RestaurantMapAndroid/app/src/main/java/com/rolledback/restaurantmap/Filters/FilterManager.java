@@ -7,12 +7,11 @@ import com.rolledback.restaurantmap.Filters.Models.FilterList;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Filters.Models.ToggleFilter;
 import com.rolledback.restaurantmap.R;
-import com.rolledback.restaurantmap.Restaurant;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;

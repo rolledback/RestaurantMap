@@ -1,37 +1,47 @@
 package com.rolledback.restaurantmap;
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Map.RestaurantMap;
+import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
+import com.rolledback.restaurantmap.RestaurantMapAPI.LoginRequest;
+import com.rolledback.restaurantmap.RestaurantMapAPI.LoginResult;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
+import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 
-import java.util.ArrayList;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, IFiltersChangedListener {
-    private static int LocPermissionReqCode = 1994;
     private GoogleMap mMap;
     private RestaurantMap restaurantMap;
     private FrameLayout filtersFragmentContainer;
@@ -66,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.restaurantMap = new RestaurantMap(this, googleMap);
         boolean moveSuccessful = restaurantMap.moveToStartingLocation();
         if (!moveSuccessful) {
-            ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, LocPermissionReqCode);
+            ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, Codes.LocationPermissionsRequest);
         }
 
         RestaurantMapApiClient client = new RestaurantMapApiClient();
@@ -87,8 +97,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == LocPermissionReqCode) {
-            if (permissions.length == 1 && permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == Codes.LocationPermissionsRequest) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 this.restaurantMap.moveToStartingLocation();
             }
         }
@@ -114,17 +124,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        menu.add(0, 0, 0, "History").setIcon(R.drawable.account_circle)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        Drawable drawable = menu.getItem(0).getIcon();
-        if(drawable != null) {
-            drawable.mutate();
-            drawable.setColorFilter(0xffffff, PorterDuff.Mode.SRC_ATOP);
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        LoginResult currentLogin = this._getCurrentLogin();
+        if (currentLogin != null) {
+            int size = (int) (24 * Resources.getSystem().getDisplayMetrics().density);
+            String firstChar = currentLogin.username.substring(0, 1).toUpperCase();
+            TextDrawable drawable = TextDrawable.builder().beginConfig().width(size).height(size).endConfig().buildRound(firstChar, getResources().getColor(R.color.colorAccent));
+            menu.add(0, 99, 0, "My Account").setIcon(drawable)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        } else {
+            menu.add(0, Codes.LoginButtonAction, 0, "Login").setIcon(R.drawable.account_circle)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Codes.LoginButtonAction:
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivityForResult(intent, Codes.LoginActivityRequest);
+                return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Codes.LoginActivityRequest) {
+            if (resultCode == RESULT_OK) {
+                invalidateOptionsMenu();
+            }
+        }
     }
 
     private void _showFailureToast() {
@@ -133,5 +166,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Toast toast = Toast.makeText(this, text, duration);
         toast.show();
+    }
+
+    private LoginResult _getCurrentLogin() {
+        SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = appSharedPref.getString(this.getString(R.string.AccessTokenSharedPref), "");
+        if (json.equals("")) {
+            return null;
+        }
+        Type type = new TypeToken<LoginResult>(){}.getType();
+        return gson.fromJson(json, type);
     }
 }

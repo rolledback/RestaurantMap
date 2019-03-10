@@ -22,4 +22,13 @@
     <string name="single_description">Whether or not the restaurant has only one location.</string>
     <string name="show_more_ratings">Show more ratings</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="error_invalid_cred">Invalid credentials</string>
+    <string name="error_field_required">This field is required</string>
+    <!-- Shared pref -->
+    <string name="RestaurantCacheSharedPref">RESTAURANT_CACHE</string>
+    <string name="AccessTokenSharedPref">ACCESS_TOKEN</string>
 </resources>

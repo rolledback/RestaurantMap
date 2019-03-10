@@ -7,14 +7,11 @@ import com.rolledback.restaurantmap.Filters.Models.CheckFilter;
 import com.rolledback.restaurantmap.Filters.Models.FilterList;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Filters.Models.ToggleFilter;
-import com.rolledback.restaurantmap.Filters.Views.IFilterView;
-import com.rolledback.restaurantmap.Filters.Views.Separator;
-import com.rolledback.restaurantmap.Restaurant;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public class RestaurantMarker {

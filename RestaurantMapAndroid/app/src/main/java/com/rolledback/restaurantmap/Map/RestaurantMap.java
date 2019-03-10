@@ -19,21 +19,16 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFilterable;
-import com.rolledback.restaurantmap.Filters.Models.CheckFilter;
-import com.rolledback.restaurantmap.Filters.Models.FilterList;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
-import com.rolledback.restaurantmap.Filters.Models.ToggleFilter;
-import com.rolledback.restaurantmap.Location;
 import com.rolledback.restaurantmap.R;
-import com.rolledback.restaurantmap.Restaurant;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Filter;
 
 import androidx.core.content.ContextCompat;
 
@@ -98,14 +93,14 @@ public class RestaurantMap implements IFilterable {
         SharedPreferences.Editor prefsEditor = appSharedPref.edit();
         Gson gson = new Gson();
         String json = gson.toJson(restaurants);
-        prefsEditor.putString("RESTAURANT_CACHE", json);
+        prefsEditor.putString(this._context.getString(R.string.RestaurantCacheSharedPref), json);
         prefsEditor.commit();
     }
 
     public void loadFromCache() {
         SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this._context);
         Gson gson = new Gson();
-        String json = appSharedPref.getString("RESTAURANT_CACHE", "");
+        String json = appSharedPref.getString(this._context.getString(R.string.RestaurantCacheSharedPref), "");
         Type type = new TypeToken<List<Restaurant>>(){}.getType();
         List<Restaurant> restaurants = gson.fromJson(json, type);
         this.addItems(restaurants);

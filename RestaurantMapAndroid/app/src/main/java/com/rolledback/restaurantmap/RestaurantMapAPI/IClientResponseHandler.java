@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.RestaurantMapAPI;
 
 public interface IClientResponseHandler<ResponseT> {
     void onSuccess(ResponseT response);

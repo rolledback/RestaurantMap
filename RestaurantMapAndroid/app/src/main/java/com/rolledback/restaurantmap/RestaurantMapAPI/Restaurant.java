@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.RestaurantMapAPI;
 
 import java.util.List;
 
