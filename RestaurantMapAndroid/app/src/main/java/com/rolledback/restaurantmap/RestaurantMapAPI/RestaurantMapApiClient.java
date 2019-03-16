@@ -11,11 +11,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RestaurantMapApiClient {
 
-    private String _accessToken;
     private IRestaurantMapService _service;
 
     public RestaurantMapApiClient() {
-        this._accessToken = null;
         Retrofit retrofit = new Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl("https://restaurantmapapi.azurewebsites.net/")
@@ -28,7 +26,7 @@ public class RestaurantMapApiClient {
         listRestaurantsCall.enqueue(new GenericCallback(handler));
     }
 
-    public void login(LoginRequest request, IClientResponseHandler<LoginResult> handler) {
+    public void login(LoginRequest request, IClientResponseHandler<Account> handler) {
         Call loginCall = this._service.login(request);
         loginCall.enqueue(new GenericCallback(handler));
     }

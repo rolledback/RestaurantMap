@@ -1,16 +1,10 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.Activities;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -21,18 +15,17 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.rolledback.restaurantmap.Codes;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Map.RestaurantMap;
+import com.rolledback.restaurantmap.R;
+import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
-import com.rolledback.restaurantmap.RestaurantMapAPI.LoginRequest;
-import com.rolledback.restaurantmap.RestaurantMapAPI.LoginResult;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Account;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 
-import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -125,12 +118,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        LoginResult currentLogin = this._getCurrentLogin();
+        menu.clear();
+        Account currentLogin = AccountManager.getInstance().currentUser(this);
         if (currentLogin != null) {
-            int size = (int) (24 * Resources.getSystem().getDisplayMetrics().density);
+            int size = (int) (32 * Resources.getSystem().getDisplayMetrics().density);
             String firstChar = currentLogin.username.substring(0, 1).toUpperCase();
             TextDrawable drawable = TextDrawable.builder().beginConfig().width(size).height(size).endConfig().buildRound(firstChar, getResources().getColor(R.color.colorAccent));
-            menu.add(0, 99, 0, "My Account").setIcon(drawable)
+            menu.add(0, Codes.ShowProfileAction, 0, "My Account").setIcon(drawable)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         } else {
             menu.add(0, Codes.LoginButtonAction, 0, "Login").setIcon(R.drawable.account_circle)
@@ -142,10 +136,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case Codes.LoginButtonAction:
-                Intent intent = new Intent(this, LoginActivity.class);
+                intent = new Intent(this, LoginActivity.class);
                 startActivityForResult(intent, Codes.LoginActivityRequest);
+                return true;
+            case Codes.ShowProfileAction:
+                intent = new Intent(this, ProfileActivity.class);
+                startActivityForResult(intent, Codes.ProfileActivityRequest);
                 return true;
         }
         return true;
@@ -154,7 +153,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Codes.LoginActivityRequest) {
-            if (resultCode == RESULT_OK) {
+            if (resultCode == Codes.ResultLogin) {
+                invalidateOptionsMenu();
+            }
+        }
+        if (requestCode == Codes.ProfileActivityRequest) {
+            if (resultCode == Codes.ResultLogout) {
                 invalidateOptionsMenu();
             }
         }
@@ -166,16 +170,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Toast toast = Toast.makeText(this, text, duration);
         toast.show();
-    }
-
-    private LoginResult _getCurrentLogin() {
-        SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Gson gson = new Gson();
-        String json = appSharedPref.getString(this.getString(R.string.AccessTokenSharedPref), "");
-        if (json.equals("")) {
-            return null;
-        }
-        Type type = new TypeToken<LoginResult>(){}.getType();
-        return gson.fromJson(json, type);
     }
 }

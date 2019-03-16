@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.Activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,16 +17,16 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
+import com.rolledback.restaurantmap.Codes;
+import com.rolledback.restaurantmap.R;
+import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
 import com.rolledback.restaurantmap.RestaurantMapAPI.LoginRequest;
-import com.rolledback.restaurantmap.RestaurantMapAPI.LoginResult;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Account;
 import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText mUsernameView;
@@ -96,34 +96,20 @@ public class LoginActivity extends AppCompatActivity {
 
     private void login(String username, String password) {
         showProgress(true);
-
-        RestaurantMapApiClient apiClient = new RestaurantMapApiClient();
-        LoginRequest loginRequest = new LoginRequest(username, password);
-        Context context = this;
-        apiClient.login(loginRequest,new IClientResponseHandler<LoginResult>() {
+        AccountManager.getInstance().login(this, new AccountManager.ILoginListener() {
             @Override
-            public void onSuccess(LoginResult response) {
+            public void onLogin(boolean loginSuccessful) {
                 showProgress(false);
-
-                SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor prefsEditor = appSharedPref.edit();
-                Gson gson = new Gson();
-                String json = gson.toJson(response);
-                prefsEditor.putString(context.getString(R.string.AccessTokenSharedPref), json);
-                prefsEditor.commit();
-
-                Intent data = new Intent();
-                setResult(RESULT_OK, data);
-                finish();
+                if (loginSuccessful) {
+                    Intent data = new Intent();
+                    setResult( Codes.ResultLogin, data);
+                    finish();
+                } else {
+                    mPasswordView.setError(getString(R.string.error_invalid_cred));
+                    mPasswordView.requestFocus();
+                }
             }
-
-            @Override
-            public void onFailure(String error) {
-                showProgress(false);
-                mPasswordView.setError(getString(R.string.error_invalid_cred));
-                mPasswordView.requestFocus();
-            }
-        });
+        }, username, password);
     }
 
     private boolean isEmailValid(String email) {

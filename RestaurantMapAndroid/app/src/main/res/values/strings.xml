@@ -31,4 +31,5 @@
     <!-- Shared pref -->
     <string name="RestaurantCacheSharedPref">RESTAURANT_CACHE</string>
     <string name="AccessTokenSharedPref">ACCESS_TOKEN</string>
+    <string name="title_activity_profile">ProfileActivity</string>
 </resources>

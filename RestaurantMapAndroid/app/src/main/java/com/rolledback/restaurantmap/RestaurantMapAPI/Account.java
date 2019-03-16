@@ -1,6 +1,6 @@
 package com.rolledback.restaurantmap.RestaurantMapAPI;
 
-public class LoginResult {
+public class Account {
     public String token;
     public String username;
 }

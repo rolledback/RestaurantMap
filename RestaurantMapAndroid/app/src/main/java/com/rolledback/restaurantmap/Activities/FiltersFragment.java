@@ -1,8 +1,7 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.Activities;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +11,10 @@ import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Filters.Views.IFilterView;
 import com.rolledback.restaurantmap.Filters.Views.Separator;
+import com.rolledback.restaurantmap.R;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import androidx.fragment.app.Fragment;

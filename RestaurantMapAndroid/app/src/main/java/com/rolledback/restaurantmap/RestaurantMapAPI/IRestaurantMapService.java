@@ -13,5 +13,5 @@ public interface IRestaurantMapService {
     Call<List<Restaurant>> listRestaurants();
 
     @POST("api/login")
-    Call<LoginResult> login(@Body LoginRequest request);
+    Call<Account> login(@Body LoginRequest request);
 }

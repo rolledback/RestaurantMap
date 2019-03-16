@@ -57,8 +57,8 @@ public class RestaurantMap implements IFilterable {
                     Log.e("TAG", "GPS is on");
                     final double currentLatitude = mLocation.getLatitude();
                     final double currentLongitude = mLocation.getLongitude();
-                    this._map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLatitude, currentLongitude), 15));
-                    this._map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+                    this._map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLatitude, currentLongitude), 13));
+                    this._map.animateCamera(CameraUpdateFactory.zoomTo(13), 2000, null);
                 }
                 return true;
             } catch (SecurityException e) {
