@@ -56,10 +56,9 @@ public class ProfileActivity extends AppCompatActivity {
                 finish();
                 return true;
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                finish();
                 return true;
         }
         return true;
     }
-
 }
