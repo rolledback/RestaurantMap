@@ -5,6 +5,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface IRestaurantMapService {
@@ -14,4 +15,7 @@ public interface IRestaurantMapService {
 
     @POST("api/login")
     Call<Account> login(@Body LoginRequest request);
+
+    @POST("api/restaurants")
+    Call<Void> addRestaurant(@Header ("Authorization") String token, @Body Restaurant restaurant);
 }

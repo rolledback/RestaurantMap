@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace RestaurantMapAPI
 {
-    public interface IUserRepository : IBackupable<User>
+    public interface IUserRepository : IBackupable<DbUser>
     {
-        Task<IEnumerable<User>> GetAllUsers();
+        Task<IEnumerable<DbUser>> GetAllUsers();
     }
 }

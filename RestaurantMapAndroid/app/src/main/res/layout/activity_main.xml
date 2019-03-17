@@ -34,7 +34,7 @@
         android:stateListAnimator="@null"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/add_button"
         style="@style/floating_action_button_right"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

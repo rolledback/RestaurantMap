@@ -15,11 +15,11 @@ namespace RestaurantMapAPI
             _database = new LiteDatabase("./RestaurantMap.db");
         }
 
-        public LiteCollection<User> Users
+        public LiteCollection<DbUser> Users
         {
             get
             {
-                return _database.GetCollection<User>("Users");
+                return _database.GetCollection<DbUser>("Users");
             }
         }
     }

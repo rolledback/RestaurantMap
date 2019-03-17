@@ -106,7 +106,12 @@ namespace RestaurantMapAPI
                              .AddExpiry(180)
                              .Build();
 
-                return new { token = token.Value, username = value.username };
+                var user = new User();
+                user.username = matchingUser.username;
+                user.isAdmin = matchingUser.isAdmin;
+                user.id = matchingUser.id;
+
+                return new { token = token.Value, user = user };
             }
             else
             {

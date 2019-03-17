@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rolledback.restaurantmap.Codes;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private RestaurantMap restaurantMap;
     private FrameLayout filtersFragmentContainer;
+    FloatingActionButton _addButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +52,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         filtersFragmentContainer = findViewById(R.id.filters_fragment_container);
 
-        Button button = findViewById(R.id.filter_button);
-        button.setOnClickListener(view -> {
+        Button filterButton = findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(view -> {
             showFilters();
         });
+
+        this._addButton = findViewById(R.id.add_button);
+        this._addButton.setOnClickListener(v -> {
+            _openAddActivity();
+        });
+        this._checkIfAccountExists();
     }
 
     /**
@@ -72,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, Codes.LocationPermissionsRequest);
         }
 
-        RestaurantMapApiClient client = new RestaurantMapApiClient();
+        RestaurantMapApiClient client = new RestaurantMapApiClient(this);
         client.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
             @Override
             public void onSuccess(List<Restaurant> response) {
@@ -155,11 +164,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == Codes.LoginActivityRequest) {
             if (resultCode == Codes.ResultLogin) {
                 invalidateOptionsMenu();
+                this._checkIfAccountExists();
             }
         }
         if (requestCode == Codes.ProfileActivityRequest) {
             if (resultCode == Codes.ResultLogout) {
                 invalidateOptionsMenu();
+                this._checkIfAccountExists();
             }
         }
     }
@@ -170,5 +181,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Toast toast = Toast.makeText(this, text, duration);
         toast.show();
+    }
+
+    private void _openAddActivity() {
+        Intent intent = new Intent(this, AddRestaurantActivity.class);
+        startActivityForResult(intent, Codes.AddActivityRequest);
+    }
+
+    private void _checkIfAccountExists() {
+        Account currUser = AccountManager.getInstance().currentUser(this);
+        if (currUser == null) {
+            this._addButton.hide();
+        } else {
+            this._addButton.show();
+        }
     }
 }

@@ -32,4 +32,14 @@
     <string name="RestaurantCacheSharedPref">RESTAURANT_CACHE</string>
     <string name="AccessTokenSharedPref">ACCESS_TOKEN</string>
     <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_new_restaurant">NewRestaurantActivity</string>
+
+    <string-array name="ratings">
+        <item>Best</item>
+        <item>Better</item>
+        <item>Good</item>
+        <item>Ok</item>
+        <item>Meh</item>
+        <item>Want to Go</item>
+    </string-array>
 </resources>

@@ -34,7 +34,7 @@ public class AccountManager {
     }
 
     public void login(Context context, ILoginListener listener, String username, String password) {
-        RestaurantMapApiClient apiClient = new RestaurantMapApiClient();
+        RestaurantMapApiClient apiClient = new RestaurantMapApiClient(context);
         LoginRequest loginRequest = new LoginRequest(username, password);
         apiClient.login(loginRequest, new IClientResponseHandler<Account>() {
             @Override

@@ -14,7 +14,7 @@ namespace RestaurantMapAPI
             _context = new UsersContext();
         }
 
-        public async Task<IEnumerable<User>> GetAllUsers()
+        public async Task<IEnumerable<DbUser>> GetAllUsers()
         {
             try
             {
@@ -28,12 +28,12 @@ namespace RestaurantMapAPI
             }
         }
 
-        public Task<IEnumerable<User>> GetAllForBackup()
+        public Task<IEnumerable<DbUser>> GetAllForBackup()
         {
             return GetAllUsers();
         }
 
-        public void RestoreFromBackup(IEnumerable<User> backup)
+        public void RestoreFromBackup(IEnumerable<DbUser> backup)
         {
             _context.Users.Delete(_ => true);
             _context.Users.InsertBulk(backup);

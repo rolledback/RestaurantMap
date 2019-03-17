@@ -1,5 +1,7 @@
 package com.rolledback.restaurantmap.RestaurantMapAPI;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -12,12 +14,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RestaurantMapApiClient {
 
     private IRestaurantMapService _service;
+    private Context _context;
 
-    public RestaurantMapApiClient() {
+    public RestaurantMapApiClient(Context context) {
         Retrofit retrofit = new Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl("https://restaurantmapapi.azurewebsites.net/")
             .build();
+        this._context = context;
         this._service = retrofit.create(IRestaurantMapService.class);
     }
 
@@ -31,6 +35,13 @@ public class RestaurantMapApiClient {
         loginCall.enqueue(new GenericCallback(handler));
     }
 
+    public void addRestaurant(Restaurant restaurant, IClientResponseHandler<Void> handler) {
+        String authToken ="Bearaer " + AccountManager.getInstance().currentUser(this._context).token;
+
+        Call addRestaurantCall = this._service.addRestaurant(authToken, restaurant);
+        addRestaurantCall.enqueue(new GenericCallback(handler));
+    }
+
     private class GenericCallback<T> implements Callback<T> {
         private IClientResponseHandler _handler;
         public GenericCallback(IClientResponseHandler<T> handler) {
@@ -42,11 +53,7 @@ public class RestaurantMapApiClient {
             if (response.isSuccessful()) {
                 _handler.onSuccess((response.body()));
             } else {
-                try {
-                    _handler.onFailure(response.errorBody().string());
-                } catch (IOException e ) {
-                    _handler.onFailure("Fatal error.");
-                }
+                _handler.onFailure(response.message());
             }
         }
         @Override
