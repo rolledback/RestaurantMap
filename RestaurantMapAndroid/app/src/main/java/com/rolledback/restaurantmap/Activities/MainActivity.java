@@ -25,6 +25,7 @@ import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Account;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 
@@ -81,20 +82,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, Codes.LocationPermissionsRequest);
         }
 
-        RestaurantMapApiClient client = new RestaurantMapApiClient(this);
-        client.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
-            @Override
-            public void onSuccess(List<Restaurant> response) {
-                restaurantMap.addItems(response);
-                restaurantMap.saveToCache(response);
-            }
-
-            @Override
-            public void onFailure(String error) {
-                _showFailureToast();
-                restaurantMap.loadFromCache();
-            }
-        });
+        this._refreshMap(null);
     }
 
     @Override
@@ -173,6 +161,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 this._checkIfAccountExists();
             }
         }
+        if (requestCode == Codes.AddActivityRequest) {
+            if (resultCode == Codes.ResultRestaurantAdded) {
+                this._refreshMap(new IRefreshCallback() {
+                    @Override
+                    public void callback() {
+                        Location loc = new Location();
+                        loc.lat = data.getDoubleExtra("lat", Integer.MIN_VALUE);
+                        loc.lng = data.getDoubleExtra("lng", Integer.MIN_VALUE);
+                        _scrollMapToRestaurant(loc);
+                    }
+                });
+            }
+        }
     }
 
     private void _showFailureToast() {
@@ -195,5 +196,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             this._addButton.show();
         }
+    }
+
+    private void _refreshMap(IRefreshCallback callback) {
+        RestaurantMapApiClient client = new RestaurantMapApiClient(this);
+        client.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
+            @Override
+            public void onSuccess(List<Restaurant> response) {
+                restaurantMap.clearItems();
+                restaurantMap.addItems(response);
+                restaurantMap.saveToCache(response);
+                if (callback != null) {
+                    callback.callback();;
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                _showFailureToast();
+                restaurantMap.clearItems();
+                restaurantMap.loadFromCache();
+            }
+        });
+    }
+
+    private void _scrollMapToRestaurant(Location loc) {
+        this.restaurantMap.moveToRestaurant(loc);
+    }
+
+    private interface IRefreshCallback {
+        void callback();
     }
 }

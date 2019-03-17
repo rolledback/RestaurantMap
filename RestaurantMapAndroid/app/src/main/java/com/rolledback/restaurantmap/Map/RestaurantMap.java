@@ -54,7 +54,6 @@ public class RestaurantMap implements IFilterable {
                 String bestProvider = String.valueOf(manager.getBestProvider(mCriteria, true));
                 android.location.Location mLocation = manager.getLastKnownLocation(bestProvider);
                 if (mLocation != null) {
-                    Log.e("TAG", "GPS is on");
                     final double currentLatitude = mLocation.getLatitude();
                     final double currentLongitude = mLocation.getLongitude();
                     this._map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLatitude, currentLongitude), 13));
@@ -85,7 +84,29 @@ public class RestaurantMap implements IFilterable {
             Marker marker = this._map.addMarker(mOp);
             this._markers.add(new RestaurantMarker(marker, rCurr));
         }
-        this.filterManager.initFilters(restaurants);;
+        this.filterManager.initFilters(restaurants);
+        this.applyFilters(this.filterManager.getCurrentFilters());
+    }
+
+    public void moveToRestaurant(Location loc) {
+        RestaurantMarker match = null;
+        for (int i = 0; i < this._markers.size(); i++) {
+            if (this._markers.get(i).isLocation(loc)) {
+                match = this._markers.get(i);
+                break;
+            }
+        }
+
+        if (match != null) {
+            this._moveToMarker(match);
+        }
+    }
+
+    public void clearItems() {
+        for (int i = 0; i < this._markers.size(); i++) {
+            this._markers.get(i).remove();
+        }
+        this._markers.clear();
     }
 
     public void saveToCache(List<Restaurant> restaurants) {
@@ -133,8 +154,22 @@ public class RestaurantMap implements IFilterable {
                 return BitmapDescriptorFactory.HUE_YELLOW;
             case "Best":
                 return BitmapDescriptorFactory.HUE_GREEN;
+            case "Meh":
+                return BitmapDescriptorFactory.HUE_RED;
+            case "Want to Go":
+                return BitmapDescriptorFactory.HUE_VIOLET;
             default:
                 return BitmapDescriptorFactory.HUE_RED;
         }
+    }
+
+    private void _moveToMarker(RestaurantMarker marker) {
+        Location markerLocation = marker.getLocation();
+        final double lat = markerLocation.lat;
+        final double lng = markerLocation.lng;
+        this._map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 16));
+        this._map.animateCamera(CameraUpdateFactory.zoomTo(16), 2000, null);
+        marker.show();
+        marker.select();
     }
 }

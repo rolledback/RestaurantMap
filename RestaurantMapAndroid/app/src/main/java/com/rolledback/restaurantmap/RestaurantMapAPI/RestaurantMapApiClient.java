@@ -36,7 +36,7 @@ public class RestaurantMapApiClient {
     }
 
     public void addRestaurant(Restaurant restaurant, IClientResponseHandler<Void> handler) {
-        String authToken ="Bearaer " + AccountManager.getInstance().currentUser(this._context).token;
+        String authToken ="Bearer " + AccountManager.getInstance().currentUser(this._context).token;
 
         Call addRestaurantCall = this._service.addRestaurant(authToken, restaurant);
         addRestaurantCall.enqueue(new GenericCallback(handler));
@@ -51,7 +51,7 @@ public class RestaurantMapApiClient {
         @Override
         public void onResponse(Call<T> call, Response<T> response) {
             if (response.isSuccessful()) {
-                _handler.onSuccess((response.body()));
+                _handler.onSuccess(response.body());
             } else {
                 _handler.onFailure(response.message());
             }

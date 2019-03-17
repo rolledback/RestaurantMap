@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.rolledback.restaurantmap.Codes;
@@ -30,6 +31,7 @@ public class AddRestaurantActivity extends AppCompatActivity {
     EditText _genre;
     EditText _subGenre;
     Spinner _rating;
+    Switch _moreThanOneLoc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class AddRestaurantActivity extends AppCompatActivity {
         this._genre = findViewById(R.id.genre_input);
         this._subGenre = findViewById(R.id.sub_genre_input);
         this._rating = findViewById(R.id.rating_spinner);
+        this._moreThanOneLoc = findViewById(R.id.multi_loc_switch);
 
         // Get intent, action and MIME type
         Intent intent = getIntent();
@@ -124,10 +127,12 @@ public class AddRestaurantActivity extends AppCompatActivity {
 
             Geocoder geocoder = new Geocoder(this);
             try {
-                List<Address> results = geocoder.getFromLocationName(searchTerm, 1);
+                List<Address> results = geocoder.getFromLocationName(searchTerm, 100);
                 if (results.size() < 1) {
                     this._showFailureToast("Unable to geocode the given restaurant. Please ensure the restaurant name and address are accurate.");
-                } else {
+                } else if (results.size() > 1) {
+                    this._showFailureToast("Too many possible results. Please refine the restaurant name or address.");
+                }else {
                     Address result = results.get(0);
 
                     Restaurant restaurant = new Restaurant();
@@ -135,6 +140,7 @@ public class AddRestaurantActivity extends AppCompatActivity {
                     restaurant.genre = this._genre.getText().toString();
                     restaurant.subGenre = this._subGenre.getText().toString();
                     restaurant.rating = (String) this._rating.getSelectedItem();
+                    restaurant.hasOtherLocations = this._moreThanOneLoc.isActivated();
 
                     Location loc = new Location();
                     loc.address = result.getAddressLine(0);
@@ -147,12 +153,12 @@ public class AddRestaurantActivity extends AppCompatActivity {
                     client.addRestaurant(restaurant, new IClientResponseHandler<Void>() {
                         @Override
                         public void onSuccess(Void response) {
-                            Log.i("a", "a");
+                            _sendAddedResult(loc);
                         }
 
                         @Override
                         public void onFailure(String error) {
-                            Log.i("a", "a");
+                            _showFailureToast("Failed to contact server. Please try again later..");
                         }
                     });
                 }
@@ -160,6 +166,14 @@ public class AddRestaurantActivity extends AppCompatActivity {
                 this._showFailureToast("Unable to geocode the given restaurant. Please ensure the restaurant name and address are accurate.");
             }
         }
+    }
+
+    private void _sendAddedResult(Location addedLocation) {
+        Intent data = new Intent();
+        data.putExtra("lat", addedLocation.lat);
+        data.putExtra("lng", addedLocation.lng);
+        setResult( Codes.ResultRestaurantAdded, data);
+        finish();
     }
 
     private boolean _validateInputs() {

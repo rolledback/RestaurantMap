@@ -7,6 +7,7 @@ import com.rolledback.restaurantmap.Filters.Models.CheckFilter;
 import com.rolledback.restaurantmap.Filters.Models.FilterList;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Filters.Models.ToggleFilter;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.util.ArrayList;
@@ -57,6 +58,18 @@ public class RestaurantMarker {
         return shouldShow;
     }
 
+    public Location getLocation() {
+        return this._restaurant.location;
+    }
+
+    public boolean isLocation(Location loc) {
+        return loc.lat == this._restaurant.location.lat && loc.lng == this._restaurant.location.lng;
+    }
+
+    public void select() {
+        this._marker.showInfoWindow();
+    }
+
     private boolean _evalRatingFilter(FilterList<Pair<String, Boolean>, CheckFilter> filter) {
         boolean noneTrue = true;
         boolean currRatingSelected = false;
@@ -70,6 +83,11 @@ public class RestaurantMarker {
                 noneTrue = false;
             }
         }
+
+        if (noneTrue && (this._restaurant.rating.equals("Meh") || this._restaurant.rating.equals("Want to Go"))) {
+            return false;
+        }
+
         return currRatingSelected || noneTrue;
     }
 
