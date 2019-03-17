@@ -115,47 +115,86 @@ public class AddRestaurantActivity extends AppCompatActivity {
     }
 
     private void _tryToSaveRestaurant() {
-        String searchTerm = "";
-        searchTerm += this._restaurantName.getText().toString();
-        searchTerm += " ";
-        searchTerm += this._address.getText().toString();
+        boolean inputsValid = this._validateInputs();
+        if (inputsValid) {
+            String searchTerm = "";
+            searchTerm += this._restaurantName.getText().toString();
+            searchTerm += " ";
+            searchTerm += this._address.getText().toString();
 
-        Geocoder geocoder = new Geocoder(this);
-        try {
-            List<Address> results = geocoder.getFromLocationName(searchTerm, 1);
-            if (results.size() < 1) {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                List<Address> results = geocoder.getFromLocationName(searchTerm, 1);
+                if (results.size() < 1) {
+                    this._showFailureToast("Unable to geocode the given restaurant. Please ensure the restaurant name and address are accurate.");
+                } else {
+                    Address result = results.get(0);
+
+                    Restaurant restaurant = new Restaurant();
+                    restaurant.name = this._restaurantName.getText().toString();
+                    restaurant.genre = this._genre.getText().toString();
+                    restaurant.subGenre = this._subGenre.getText().toString();
+                    restaurant.rating = (String) this._rating.getSelectedItem();
+
+                    Location loc = new Location();
+                    loc.address = result.getAddressLine(0);
+                    loc.lat = result.getLatitude();
+                    loc.lng = result.getLongitude();
+
+                    restaurant.location = loc;
+
+                    RestaurantMapApiClient client = new RestaurantMapApiClient(this);
+                    client.addRestaurant(restaurant, new IClientResponseHandler<Void>() {
+                        @Override
+                        public void onSuccess(Void response) {
+                            Log.i("a", "a");
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Log.i("a", "a");
+                        }
+                    });
+                }
+            } catch (Exception e) {
                 this._showFailureToast("Unable to geocode the given restaurant. Please ensure the restaurant name and address are accurate.");
-            } else {
-                Address result = results.get(0);
-
-                Restaurant restaurant = new Restaurant();
-                restaurant.name = this._restaurantName.getText().toString();
-                restaurant.genre = this._genre.getText().toString();
-                restaurant.subGenre = this._subGenre.getText().toString();
-                restaurant.rating = (String)this._rating.getSelectedItem();
-
-                Location loc = new Location();
-                loc.address = result.getAddressLine(0);
-                loc.lat = result.getLatitude();
-                loc.lng = result.getLongitude();
-
-                restaurant.location = loc;
-
-                RestaurantMapApiClient client = new RestaurantMapApiClient(this);
-                client.addRestaurant(restaurant, new IClientResponseHandler() {
-                    @Override
-                    public void onSuccess(Object response) {
-                        Log.i("a", "a");
-                    }
-
-                    @Override
-                    public void onFailure(String error) {
-                        Log.i("a", "a");
-                    }
-                });
             }
-        } catch (Exception e) {
-            this._showFailureToast("Unable to geocode the given restaurant. Please ensure the restaurant name and address are accurate.");
         }
+    }
+
+    private boolean _validateInputs() {
+        String restaurantName = this._restaurantName.getText().toString();
+        if (restaurantName.isEmpty()) {
+            this._restaurantName.setError("Restaurant name is required.");
+            return false;
+        } else {
+            this._restaurantName.setError(null);
+        }
+
+        String address = this._address.getText().toString();
+        if (address.isEmpty()) {
+            this._address.setError("Address is required.");
+            return false;
+        } else {
+            this._address.setError(null);
+        }
+
+        String genre = this._genre.getText().toString();
+        if (genre.isEmpty()) {
+            this._genre.setError("Genre is required.");
+            return false;
+        } else {
+            this._genre.setError(null);
+        }
+
+        String subGenre = this._subGenre.getText().toString();
+        if (subGenre.isEmpty()) {
+            this._subGenre.setError("Sub-genre is required.");
+            return false;
+        } else {
+            this._subGenre.setError(null);
+        }
+
+        return true;
     }
 }
