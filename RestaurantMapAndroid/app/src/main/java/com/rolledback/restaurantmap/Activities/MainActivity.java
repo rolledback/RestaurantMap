@@ -186,6 +186,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void _openAddActivity() {
         Intent intent = new Intent(this, AddRestaurantActivity.class);
+        intent.putStringArrayListExtra(Codes.AvailableGenresExtra, this.restaurantMap.getAvailableGenres());
+        intent.putStringArrayListExtra(Codes.AvailableSubGenresExtra, this.restaurantMap.getAvailableSubGenres());
         startActivityForResult(intent, Codes.AddActivityRequest);
     }
 

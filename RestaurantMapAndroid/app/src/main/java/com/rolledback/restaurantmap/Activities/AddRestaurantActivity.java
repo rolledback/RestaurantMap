@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -20,6 +21,7 @@ import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,8 +30,8 @@ public class AddRestaurantActivity extends AppCompatActivity {
 
     EditText _restaurantName;
     EditText _address;
-    EditText _genre;
-    EditText _subGenre;
+    AutoCompleteTextView _genre;
+    AutoCompleteTextView _subGenre;
     Spinner _rating;
     Switch _moreThanOneLoc;
 
@@ -61,6 +63,14 @@ public class AddRestaurantActivity extends AppCompatActivity {
             if ("text/plain".equals(type)) {
                 this._handleSendText(intent); // Handle text being sent
             }
+        } else {
+            ArrayList<String> availableGenres = intent.getStringArrayListExtra(Codes.AvailableGenresExtra);
+            ArrayAdapter<String> genresAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availableGenres);
+            this._genre.setAdapter(genresAdapter);
+
+            ArrayList<String> availableSubGenres = intent.getStringArrayListExtra(Codes.AvailableSubGenresExtra);
+            ArrayAdapter<String> subGenresAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availableSubGenres);
+            this._genre.setAdapter(subGenresAdapter);
         }
     }
 

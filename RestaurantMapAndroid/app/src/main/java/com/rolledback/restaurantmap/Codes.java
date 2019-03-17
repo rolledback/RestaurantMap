@@ -15,4 +15,7 @@ public class Codes {
     public static final int ResultLogout = 1957;
     public static final int ResultLogin = 1958;
     public static final int ResultRestaurantAdded = 1959;
+
+    public static final String AvailableGenresExtra = "com.rolledback.restaurantmap.AvailableGenres";
+    public static final String AvailableSubGenresExtra = "com.rolledback.restaurantmap.AvailableSubGenres";
 }

@@ -70,6 +70,14 @@ public class RestaurantMarker {
         this._marker.showInfoWindow();
     }
 
+    public String getGenre() {
+        return this._restaurant.genre;
+    }
+
+    public String getSubGenre() {
+        return this._restaurant.subGenre;
+    }
+
     private boolean _evalRatingFilter(FilterList<Pair<String, Boolean>, CheckFilter> filter) {
         boolean noneTrue = true;
         boolean currRatingSelected = false;

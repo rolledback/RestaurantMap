@@ -26,9 +26,12 @@ import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import androidx.core.content.ContextCompat;
 
@@ -142,6 +145,14 @@ public class RestaurantMap implements IFilterable {
 
     public LinkedHashMap<String, IViewableFilter> getCurrentFilters() {
         return this.filterManager.getCurrentFilters();
+    }
+
+    public ArrayList<String> getAvailableGenres() {
+        return new ArrayList<>(new LinkedHashSet<>(this._markers.stream().map(m -> m.getGenre()).collect(Collectors.<String>toList())));
+    }
+
+    public ArrayList<String> getAvailableSubGenres() {
+        return new ArrayList<>(new LinkedHashSet<>(this._markers.stream().map(m -> m.getSubGenre()).collect(Collectors.<String>toList())));
     }
 
     private float _getMarkerColor(Restaurant restaurant) {

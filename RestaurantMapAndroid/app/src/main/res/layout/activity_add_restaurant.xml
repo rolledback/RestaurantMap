@@ -13,7 +13,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:hint="Restaruant Name"
+        android:hint="Restaurant Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +25,6 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:hint="Name"
         style="@android:style/Widget.Material.Spinner.Underlined"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +42,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rating_spinner" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/genre_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -55,7 +54,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/address_input" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/sub-genre_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
