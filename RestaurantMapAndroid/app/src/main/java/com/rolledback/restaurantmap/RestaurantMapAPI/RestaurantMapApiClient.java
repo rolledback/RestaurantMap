@@ -2,7 +2,6 @@ package com.rolledback.restaurantmap.RestaurantMapAPI;
 
 import android.content.Context;
 
-import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -30,13 +29,18 @@ public class RestaurantMapApiClient {
         listRestaurantsCall.enqueue(new GenericCallback(handler));
     }
 
-    public void login(LoginRequest request, IClientResponseHandler<Account> handler) {
+    public void login(LoginRequest request, IClientResponseHandler<AuthResult> handler) {
         Call loginCall = this._service.login(request);
         loginCall.enqueue(new GenericCallback(handler));
     }
 
+    public void reauth(ReauthRequest request, IClientResponseHandler<AuthResult> handler) {
+        Call reauthCall = this._service.reauth(request);
+        reauthCall.enqueue(new GenericCallback(handler));
+    }
+
     public void addRestaurant(Restaurant restaurant, IClientResponseHandler<Void> handler) {
-        String authToken ="Bearer " + AccountManager.getInstance().currentUser(this._context).token;
+        String authToken = "Bearer " + AccountManager.getInstance().currentAuthToken(this._context);
 
         Call addRestaurantCall = this._service.addRestaurant(authToken, restaurant);
         addRestaurantCall.enqueue(new GenericCallback(handler));

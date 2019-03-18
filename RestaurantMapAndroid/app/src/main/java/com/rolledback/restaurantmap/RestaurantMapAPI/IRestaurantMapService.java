@@ -14,7 +14,10 @@ public interface IRestaurantMapService {
     Call<List<Restaurant>> listRestaurants();
 
     @POST("api/auth/login")
-    Call<Account> login(@Body LoginRequest request);
+    Call<AuthResult> login(@Body LoginRequest request);
+
+    @POST("api/auth/refresh")
+    Call<AuthResult> reauth(@Body ReauthRequest request);
 
     @POST("api/restaurants")
     Call<Void> addRestaurant(@Header ("Authorization") String token, @Body Restaurant restaurant);

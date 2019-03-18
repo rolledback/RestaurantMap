@@ -175,6 +175,10 @@ namespace RestaurantMapAPI
             {
                 newSessions = user.sessions.Where(s => !(s.accessToken == refreshRequest.accessToken && s.refreshToken == refreshRequest.refreshToken)).ToList();
             }
+            else if (user.sessions != null)
+            {
+                newSessions = user.sessions.ToList();
+            }
             newSessions.Add(newSession);
             user.sessions = newSessions;
 

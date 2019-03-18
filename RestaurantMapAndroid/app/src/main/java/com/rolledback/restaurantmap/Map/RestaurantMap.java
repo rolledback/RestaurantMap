@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.rolledback.restaurantmap.Codes;
 import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFilterable;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
@@ -117,14 +118,14 @@ public class RestaurantMap implements IFilterable {
         SharedPreferences.Editor prefsEditor = appSharedPref.edit();
         Gson gson = new Gson();
         String json = gson.toJson(restaurants);
-        prefsEditor.putString(this._context.getString(R.string.RestaurantCacheSharedPref), json);
+        prefsEditor.putString(Codes.RestaurantCacheSharedPref, json);
         prefsEditor.commit();
     }
 
     public void loadFromCache() {
         SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this._context);
         Gson gson = new Gson();
-        String json = appSharedPref.getString(this._context.getString(R.string.RestaurantCacheSharedPref), "");
+        String json = appSharedPref.getString(Codes.RestaurantCacheSharedPref, "");
         Type type = new TypeToken<List<Restaurant>>(){}.getType();
         List<Restaurant> restaurants = gson.fromJson(json, type);
         this.addItems(restaurants);

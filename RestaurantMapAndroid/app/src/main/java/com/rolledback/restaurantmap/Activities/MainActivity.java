@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -23,11 +22,12 @@ import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.Map.RestaurantMap;
 import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;
+import com.rolledback.restaurantmap.RestaurantMapAPI.AuthResult;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
-import com.rolledback.restaurantmap.RestaurantMapAPI.Account;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
+import com.rolledback.restaurantmap.RestaurantMapAPI.User;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -116,12 +116,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        Account currentLogin = AccountManager.getInstance().currentUser(this);
-        if (currentLogin != null) {
+        User currentUser = AccountManager.getInstance().currentUser(this);
+        if (currentUser != null) {
             int size = (int) (32 * Resources.getSystem().getDisplayMetrics().density);
-            String firstChar = currentLogin.username.substring(0, 1).toUpperCase();
+            String firstChar = currentUser.username.substring(0, 1).toUpperCase();
             TextDrawable drawable = TextDrawable.builder().beginConfig().width(size).height(size).endConfig().buildRound(firstChar, getResources().getColor(R.color.colorAccent));
-            menu.add(0, Codes.ShowProfileAction, 0, "My Account").setIcon(drawable)
+            menu.add(0, Codes.ShowProfileAction, 0, "My AuthResult").setIcon(drawable)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else {
             menu.add(0, Codes.LoginButtonAction, 0, "Login").setIcon(R.drawable.account_circle)
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void _checkIfAccountExists() {
-        Account currUser = AccountManager.getInstance().currentUser(this);
+        User currUser = AccountManager.getInstance().currentUser(this);
         if (currUser == null) {
             this._addButton.hide();
         } else {

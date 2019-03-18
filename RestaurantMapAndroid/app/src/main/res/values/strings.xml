@@ -28,9 +28,6 @@
     <string name="action_sign_in">Sign in</string>
     <string name="error_invalid_cred">Invalid credentials</string>
     <string name="error_field_required">This field is required</string>
-    <!-- Shared pref -->
-    <string name="RestaurantCacheSharedPref">RESTAURANT_CACHE</string>
-    <string name="AccessTokenSharedPref">ACCESS_TOKEN</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="title_activity_new_restaurant">NewRestaurantActivity</string>
 

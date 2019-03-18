@@ -19,4 +19,7 @@ public class Codes {
 
     public static final String AvailableGenresExtra = "com.rolledback.restaurantmap.AvailableGenres";
     public static final String AvailableSubGenresExtra = "com.rolledback.restaurantmap.AvailableSubGenres";
+
+    public static final String RestaurantCacheSharedPref = "com.rolledback.restaurantmap.restaurantcache";
+    public static final String ApiAuthInfoSharedPref = "com.rolledback.restaurantmap.apiauthinfo";
 }
