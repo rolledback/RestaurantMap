@@ -108,10 +108,6 @@ public class RestaurantMarker {
             }
         }
 
-        if (noneTrue && (this._restaurant.rating.equals("Meh") || this._restaurant.rating.equals("Want to Go"))) {
-            return false;
-        }
-
         return currRatingSelected || noneTrue;
     }
 
