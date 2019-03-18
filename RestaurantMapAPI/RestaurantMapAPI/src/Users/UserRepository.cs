@@ -33,6 +33,19 @@ namespace RestaurantMapAPI
             return GetAllUsers();
         }
 
+        public async Task UpdateUser(DbUser user)
+        {
+            try
+            {
+                _context.Users.Update(user);
+            }
+            catch (Exception ex)
+            {
+                // log or manage the exception
+                throw ex;
+            }
+        }
+
         public void RestoreFromBackup(IEnumerable<DbUser> backup)
         {
             _context.Users.Delete(_ => true);

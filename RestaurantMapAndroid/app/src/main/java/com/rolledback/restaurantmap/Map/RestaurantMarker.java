@@ -70,12 +70,28 @@ public class RestaurantMarker {
         this._marker.showInfoWindow();
     }
 
+    public String getName() {
+        return this._restaurant.name;
+    }
+
+    public String getRating() {
+        return this._restaurant.rating;
+    }
+
+    public String getAddress() {
+        return this._restaurant.location.address;
+    }
+
     public String getGenre() {
         return this._restaurant.genre;
     }
 
     public String getSubGenre() {
         return this._restaurant.subGenre;
+    }
+
+    public boolean isVisible() {
+        return this._marker.isVisible();
     }
 
     private boolean _evalRatingFilter(FilterList<Pair<String, Boolean>, CheckFilter> filter) {

@@ -122,11 +122,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             String firstChar = currentLogin.username.substring(0, 1).toUpperCase();
             TextDrawable drawable = TextDrawable.builder().beginConfig().width(size).height(size).endConfig().buildRound(firstChar, getResources().getColor(R.color.colorAccent));
             menu.add(0, Codes.ShowProfileAction, 0, "My Account").setIcon(drawable)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else {
             menu.add(0, Codes.LoginButtonAction, 0, "Login").setIcon(R.drawable.account_circle)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
+
+        menu.add(0, Codes.RefreshButtonAction, 0, "Refresh").setIcon(R.drawable.ic_refresh_24dp)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return true;
     }
@@ -142,6 +145,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case Codes.ShowProfileAction:
                 intent = new Intent(this, ProfileActivity.class);
                 startActivityForResult(intent, Codes.ProfileActivityRequest);
+                return true;
+            case Codes.RefreshButtonAction:
+                this._refreshMap(null);
                 return true;
         }
         return true;

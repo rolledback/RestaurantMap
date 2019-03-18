@@ -10,5 +10,6 @@ namespace RestaurantMapAPI
     public interface IUserRepository : IBackupable<DbUser>
     {
         Task<IEnumerable<DbUser>> GetAllUsers();
+        Task UpdateUser(DbUser user);
     }
 }

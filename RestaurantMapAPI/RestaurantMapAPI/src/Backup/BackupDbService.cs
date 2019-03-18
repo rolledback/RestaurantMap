@@ -14,7 +14,6 @@ namespace RestaurantMapAPI
 {
     public class BackupDbService : IBackupDbService
     {
-
         private CloudStorageAccount _account;
         private CloudBlobContainer _backupsContainer;
 
@@ -28,6 +27,12 @@ namespace RestaurantMapAPI
         public async Task Restore<T>(IBackupable<T> db)
         {
             string backupName = db.GetBackupName();
+            await Restore<T>(backupName, db);
+        }
+
+        public async Task Restore<T>(string blobName, IBackupable<T> db)
+        {
+            string backupName = blobName;
             CloudBlockBlob cloudBlockBlob = _backupsContainer.GetBlockBlobReference(backupName);
             var json = await cloudBlockBlob.DownloadTextAsync();
             IEnumerable<T> data = JsonConvert.DeserializeObject<IEnumerable<T>>(json);

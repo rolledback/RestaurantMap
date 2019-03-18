@@ -13,7 +13,7 @@ public interface IRestaurantMapService {
     @GET("api/restaurants")
     Call<List<Restaurant>> listRestaurants();
 
-    @POST("api/login")
+    @POST("api/auth/login")
     Call<Account> login(@Body LoginRequest request);
 
     @POST("api/restaurants")
