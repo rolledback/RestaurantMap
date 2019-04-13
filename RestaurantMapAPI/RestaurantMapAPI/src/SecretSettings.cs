@@ -7,7 +7,6 @@ namespace RestaurantMapAPI
 {
     public class SecretSettings
     {
-        public string YelpApiKey;
         public string TokenIssuerSigningKey;
         public string Salt;
     }

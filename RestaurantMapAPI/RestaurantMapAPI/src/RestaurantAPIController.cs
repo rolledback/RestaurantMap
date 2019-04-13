@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 
@@ -25,58 +23,6 @@ namespace RestaurantMapAPI
             _UsersRepository = UsersRepository;
             _SecretSettings = secretSettings;
             _StorageSettings = storageSettings;
-        }
-
-        [Authorize]
-        [HttpGet("find-restaurant")]
-        public async Task<IEnumerable<Restaurant>> FindLocation(FindLocationRequest request)
-        {
-            var client = new Yelp.Api.Client(_SecretSettings.Value.YelpApiKey);
-            var searchRequest = new Yelp.Api.Models.SearchRequest();
-            searchRequest.Term = request.restaurantName;
-            searchRequest.Location = "Seattle, WA";
-            var results = await client.SearchBusinessesAllAsync(searchRequest);
-
-            var matchesToAdd = request.numResults != 0 ? request.numResults : 10;
-            var possibleLocations = new List<Restaurant>();
-            foreach (var business in results.Businesses.Where(b => b.Location.City.Equals("Seattle")))
-            {
-                if (matchesToAdd == 0)
-                {
-                    break;
-                }
-                possibleLocations.Add(YelpBusinessToRestaurant(business));
-                matchesToAdd--;
-            }
-            return possibleLocations;
-        }
-
-        private static Restaurant YelpBusinessToRestaurant(Yelp.Api.Models.BusinessResponse business)
-        {
-            var location = new Location();
-            location.address = business.Location.Address1;
-
-            if (!string.IsNullOrEmpty(business.Location.Address2))
-            {
-                location.address += " " + business.Location.Address2;
-            }
-            if (!string.IsNullOrEmpty(business.Location.Address3))
-            {
-                location.address += " " + business.Location.Address3;
-            }
-
-            location.address += " " + business.Location.City + " " + business.Location.State;
-
-            var restaurant = new Restaurant();
-            restaurant.name = business.Name;
-            restaurant.genre = "";
-            restaurant.subGenre = "";
-            restaurant.description = "";
-            restaurant.rating = "";
-            restaurant.location = location;
-            restaurant.reviewSites = new List<string> { business.Url.Split('?')[0] };
-
-            return restaurant;
         }
 
         [HttpGet("restaurants")]

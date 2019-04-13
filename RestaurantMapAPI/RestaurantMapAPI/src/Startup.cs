@@ -37,7 +37,6 @@ namespace RestaurantMapAPI
             var tokenIssuerSigningKey = Configuration.GetSection("SecretSettings:TokenIssuerSigningKey").Value;
             services.Configure<SecretSettings>(options =>
             {
-                options.YelpApiKey = Configuration.GetSection("SecretSettings:YelpApiKey").Value;
                 options.TokenIssuerSigningKey = tokenIssuerSigningKey;
                 options.Salt = Configuration.GetSection("SecretSettings:Salt").Value; ;
             });
