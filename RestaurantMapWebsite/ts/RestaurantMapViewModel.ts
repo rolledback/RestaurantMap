@@ -1,35 +1,20 @@
-import * as ko from "knockout";
-import * as $ from "jquery";
 import IRestaurant, { Rating } from "./IRestaurant";
 import MapIcons from "./MapIcons";
 import ILocation from "./ILocation";
 import FiltersViewModel from "./FiltersViewModel";
 import FilterViewModel from "./FilterViewModel";
-import AddRestaurantDialogViewModel from "./AddRestaurantDialog/AddRestaurantDialogViewModel";
-import SignInDialogViewModel from "./SignInDialog/SignInDialogViewModel";
 import RestaurantMapApiClient from "./RestaurantMapApiClient";
-import GeocoderApiClient from "./GeocoderApiClient";
 
 export type AuthToken = { token: string, username: string };
 
 export default class RestaurantMapViewModel {
     private _map: google.maps.Map;
     private _markers: google.maps.Marker[];
-    private _geocoder: google.maps.Geocoder;
     private _currentOpenWindow: google.maps.InfoWindow;
     private _data: IRestaurant[] = [];
     private _restaurantFilters: FiltersViewModel;
-    private _onlyShowVisited: KnockoutObservable<boolean>;
-
-    private _addDialog: AddRestaurantDialogViewModel;
-    private _signInDialog: SignInDialogViewModel;
-
-    private _currentAccessToken: KnockoutObservable<AuthToken | null>;
 
     constructor() {
-        this._geocoder = new google.maps.Geocoder();
-        this._currentAccessToken = ko.observable<AuthToken | null>(null);
-
         let mapElement = document.getElementById("map");
         let mapOptions: google.maps.MapOptions = {
             center: {
@@ -43,42 +28,7 @@ export default class RestaurantMapViewModel {
         this._restaurantFilters = new FiltersViewModel();
         this._addLocationMarker();
 
-        this._onlyShowVisited = ko.observable<boolean>(true);
-        this._onlyShowVisited.subscribe((value) => {
-            this._applyFilters(this._restaurantFilters.allSelectedFilters());
-        });
-
         this._init();
-        this._addDialog = new AddRestaurantDialogViewModel();
-        this._addDialog.result.subscribe(async (result: IRestaurant | null) => {
-            if (!!result) {
-                try {
-                    await this._addRestaurant(result);
-                    await this._init();
-                } catch (err) {
-                    alert(err);
-                }
-            }
-        });
-
-        this._signInDialog = new SignInDialogViewModel();
-        this._signInDialog.result.subscribe(async (result: { username: string, password: string } | null) => {
-            if (!!result) {
-                try {
-                    this._currentAccessToken(await this.signIn(result));
-                } catch (err) {
-                    alert(err);
-                }
-            }
-        });
-
-        this._currentAccessToken.subscribe((value: AuthToken | null) => {
-            RestaurantMapApiClient.setAccessToken(!!value ? value.token : null);
-        });
-    }
-
-    public async signOut(): Promise<void> {
-        this._currentAccessToken(null);
     }
 
     public async signIn(loginParams: { username: string, password: string }): Promise<AuthToken> {
@@ -143,15 +93,6 @@ export default class RestaurantMapViewModel {
         this._generateFilters();
     }
 
-    private async _addRestaurant(restaurant: IRestaurant): Promise<void> {
-        await Promise.all(restaurant.locations.map(async (location) => {
-            let latLng: google.maps.LatLng = await GeocoderApiClient.geocodeAddress(location.address);
-            location.lat = latLng.lat();
-            location.lng = latLng.lng();
-        }));
-        return await RestaurantMapApiClient.post<IRestaurant, void>("restaurants", restaurant);
-    }
-
     private _generateFilters() {
         this._restaurantFilters.clearFilters();
         this._restaurantFilters.addFilter(this._createFilter("genre"));
@@ -178,19 +119,14 @@ export default class RestaurantMapViewModel {
     }
 
     private _filterRestaurant(restaurant: IRestaurant, filteredOut: boolean) {
-        restaurant.locations.forEach((location) => {
-            if (!!location.marker) {
-                if (this._onlyShowVisited() && !location.visited) {
-                    if (location.marker.getMap() !== null) {
-                        location.marker.setMap(null);
-                    }
-                } else if (!filteredOut && location.marker.getMap() === null) {
-                    location.marker.setMap(this._map);
-                } else if (filteredOut && !!location.marker.getMap()) {
-                    location.marker.setMap(null);
-                }
+        let location = restaurant.location;
+        if (!!location.marker) {
+            if (!filteredOut && location.marker.getMap() === null) {
+                location.marker.setMap(this._map);
+            } else if (filteredOut && !!location.marker.getMap()) {
+                location.marker.setMap(null);
             }
-        });
+        }
     }
 
     private async _getData(): Promise<void> {
@@ -213,7 +149,7 @@ export default class RestaurantMapViewModel {
         }
 
         this._data.forEach((restaurant) => {
-            this._addRestaurantMarkers(restaurant);
+            this._addRestaurantMarker(restaurant);
         });
 
         this._map.addListener("click", () => {
@@ -223,26 +159,25 @@ export default class RestaurantMapViewModel {
         });
     }
 
-    private _addRestaurantMarkers(restaurant: IRestaurant) {
-        restaurant.locations.forEach((location) => {
-            let infoWindow = this._createInfoWindow(restaurant, location);
-            let marker = new google.maps.Marker({
-                position: new google.maps.LatLng(location.lat, location.lng),
-                map: this._map,
-                icon: RestaurantMapViewModel._ratingToIcon(restaurant.rating)
-            });
-            marker.addListener("click", () => {
-                if (!!this._currentOpenWindow) {
-                    this._currentOpenWindow.close();
-                }
-                this._currentOpenWindow = infoWindow;
-                infoWindow.open(this._map, marker);
-            });
-            if (!!location.marker) {
-                location.marker.setMap(null);
-            }
-            location.marker = marker;
+    private _addRestaurantMarker(restaurant: IRestaurant) {
+        let location = restaurant.location;
+        let infoWindow = this._createInfoWindow(restaurant, location);
+        let marker = new google.maps.Marker({
+            position: new google.maps.LatLng(location.lat, location.lng),
+            map: this._map,
+            icon: RestaurantMapViewModel._ratingToIcon(restaurant.rating)
         });
+        marker.addListener("click", () => {
+            if (!!this._currentOpenWindow) {
+                this._currentOpenWindow.close();
+            }
+            this._currentOpenWindow = infoWindow;
+            infoWindow.open(this._map, marker);
+        });
+        if (!!location.marker) {
+            location.marker.setMap(null);
+        }
+        location.marker = marker;
     }
 
     private _createInfoWindow(restaurant: IRestaurant, location: ILocation): google.maps.InfoWindow {
@@ -250,7 +185,7 @@ export default class RestaurantMapViewModel {
             `<p>${restaurant.genre} | ${restaurant.subGenre}, ${location.address}</p>\n`;
         contentString += `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURI(restaurant.name + " " + location.address)}" target="_blank">Open In Google Maps</a>\n`;
         contentString += "<br><br>Review sites:<ul>\n";
-        location.reviewSites.forEach((site) => {
+        restaurant.reviewSites.forEach((site) => {
             contentString += `<li><a href=${site} target="_blank">${site}</a></li>\n`;
         });
         contentString += "<ul>\n";
@@ -315,6 +250,10 @@ export default class RestaurantMapViewModel {
                 return MapIcons.yellow_dot;
             case "Best":
                 return MapIcons.green_dot;
+            case "Meh":
+                return MapIcons.red_dot;
+            case "Want to Go":
+                return MapIcons.purple_dot;
         }
     }
 

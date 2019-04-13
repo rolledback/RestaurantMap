@@ -3,5 +3,7 @@ export default {
     blue_dot: "http://maps.google.com/mapfiles/ms/micons/blue-dot.png",
     green_dot: "http://maps.google.com/mapfiles/ms/micons/green-dot.png",
     orange_dot: "http://maps.google.com/mapfiles/ms/micons/orange-dot.png",
-    yellow_dot: "http://maps.google.com/mapfiles/ms/micons/yellow-dot.png"
+    yellow_dot: "http://maps.google.com/mapfiles/ms/micons/yellow-dot.png",
+    red_dot: "http://maps.google.com/mapfiles/ms/micons/red-dot.png",
+    purple_dot: "http://maps.google.com/mapfiles/ms/micons/purple-dot.png",
 };

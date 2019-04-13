@@ -9,10 +9,6 @@ class RestaurantMapApiClient {
         this._accessToken = null;
     }
 
-    public setAccessToken(accessToken: string | null) {
-        this._accessToken = accessToken;
-    }
-
     public async get<ReturnT>(endpoint: string): Promise<ReturnT> {
         return await new Promise<ReturnT>((resolve, reject) => {
             let httpRequest = new XMLHttpRequest();

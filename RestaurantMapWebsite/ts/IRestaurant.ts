@@ -1,6 +1,6 @@
 import ILocation from "./ILocation";
 
-export type Rating = "Ok" | "Good" | "Better" | "Best";
+export type Rating = "Want to Go" | "Meh" | "Ok" | "Good" | "Better" | "Best";
 
 export default interface IRestaurant {
     name: string;
@@ -8,5 +8,7 @@ export default interface IRestaurant {
     subGenre: string;
     description?: string;
     rating: Rating;
-    locations: ILocation[];
+    location: ILocation;
+    reviewSites: { name: string, address: string }[];
+    hasOtherLocations: boolean;
 }

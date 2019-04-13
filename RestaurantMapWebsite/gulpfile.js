@@ -61,6 +61,6 @@ gulp.task("build", ["copy-to-bin", "tsc-browserify-src"]);
 gulp.task("default", (done) => {
     runSequence(["copy-to-bin", "tsc-browserify-src"], () => {
         console.log("Watching...");
-        gulp.watch(["ts/**/*.ts"], ["build"]);
+        gulp.watch(["ts/**/*.ts", "index.html", "style.css"], ["build"]);
     });
 });

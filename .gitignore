@@ -8,6 +8,7 @@ RestaurantMapAPI/RestaurantMapAPI/*.db
 
 # Restaurant Map Website #
 RestaurantMapWebsite/.bin/
+RestaurantMapWebsite/js/
 RestaurantMapWebsite/node_modules/
 
 # Restaurant Map Android #

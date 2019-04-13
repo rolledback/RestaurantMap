@@ -17,3 +17,28 @@ html, body {
     align-items: center;
     flex-wrap: wrap;
 }
+
+.main-div {
+    display: grid;
+    height: 100%;
+    grid-template-rows: min-content auto;
+}
+
+.filters-and-map {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.map {
+    position: relative;
+    overflow: hidden;
+    height: auto;
+    flex-grow: 2;
+}
+
+.scrollable-menu {
+    height: auto;
+    max-height: 600px;
+    overflow-x: hidden;
+}
