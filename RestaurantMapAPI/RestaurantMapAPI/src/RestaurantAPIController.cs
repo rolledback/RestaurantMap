@@ -72,7 +72,7 @@ namespace RestaurantMapAPI
                 return new StatusCodeResult(400);
             }
             var hashedPassword = SeasonAndHashPassword(value.password);
-            var newUser = new DbUser(value.username, hashedPassword, false);
+            var newUser = new DbUser(value.username, hashedPassword);
             await this._UsersRepository.AddUser(newUser);
 
             return new StatusCodeResult(201);
@@ -163,7 +163,6 @@ namespace RestaurantMapAPI
 
             var user = new User();
             user.username = dbUser.username;
-            user.isAdmin = dbUser.isAdmin;
             user.id = dbUser.id;
 
             var authResult = new AuthResult();

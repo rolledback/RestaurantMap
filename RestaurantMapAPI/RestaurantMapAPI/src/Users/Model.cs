@@ -9,11 +9,10 @@ namespace RestaurantMapAPI
         {
         }
 
-        public DbUser(string username, string hashedPassword, bool isAdmin)
+        public DbUser(string username, string hashedPassword)
         {
             this.username = username;
             this.hashedPassword = hashedPassword;
-            this.isAdmin = isAdmin;
             this.sessions = new List<Session>();
             this.permissions = new List<Permission>();
         }
@@ -21,7 +20,6 @@ namespace RestaurantMapAPI
         public int id { get; set; }
         public string username { get; set; }
         public string hashedPassword { get; set; }
-        public bool isAdmin { get; set; }
         public IEnumerable<Session> sessions { get; set; }
         public IEnumerable<Permission> permissions { get; set; }
     }
