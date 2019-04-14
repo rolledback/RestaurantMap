@@ -15,6 +15,8 @@ Dependencies:
 Reccomended Dev Tools:
 - [VS Code](https://code.visualstudio.com/)
 
+To start developing, simply run `npm install` and then `npm build`. The build will watch for changes to any of the Typescript files, `index.html` or `style.css`. To launch the website, open the `index.html` in the `.bin` folder.
+
 ## Restaurant Map Android ##
 
 Dev OS's:

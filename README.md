@@ -10,6 +10,8 @@ Restaurant Map is a full stack application that I use to track what restaurants 
 
 The website was the first front end I made for this application. Orginally you could use it to add and delete restaurants. But since the introduction of the Android app, the website is simply meant to be a viewing portal. Full support for CRUD operations has been delegated to the Android app.
 
+The website is currently hosted by an [Azure Storage static website](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website). You can find the website [here](https://restaurantmapwebsite.z4.web.core.windows.net/).
+
 ## Restaurant Map Android (WIP) ##
 <p align="center">
 <img src="./ReadmeImages/android.png" width="288">
