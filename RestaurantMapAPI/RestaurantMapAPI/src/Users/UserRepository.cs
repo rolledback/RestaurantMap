@@ -28,6 +28,19 @@ namespace RestaurantMapAPI
             }
         }
 
+        public async Task AddUser(DbUser item)
+        {
+            try
+            {
+                _context.Users.Insert(item);
+            }
+            catch (Exception ex)
+            {
+                // log or manage the exception
+                throw ex;
+            }
+        }
+
         public Task<IEnumerable<DbUser>> GetAllForBackup()
         {
             return GetAllUsers();

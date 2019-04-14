@@ -31,14 +31,14 @@ namespace RestaurantMapAPI
             return await _RestaurantRepository.GetAllRestaurants();
         }
 
-        [Authorize]
+        [Authorize(Policy = "RestaurantCreate")]
         [HttpPost("restaurants")]
         public void AddRestaurant([FromBody]Restaurant value)
         {
-           _RestaurantRepository.AddRestaurant(value);
+            _RestaurantRepository.AddRestaurant(value);
         }
 
-        [Authorize]
+        [Authorize(Policy = "DbManager")]
         [HttpPost("db/restaurants")]
         public async Task UpdateRestaurantsDb([FromBody]UpdateDbRequest value)
         {
@@ -46,11 +46,36 @@ namespace RestaurantMapAPI
             await backupService.Restore<Restaurant>(value.blobName, _RestaurantRepository);
         }
 
-        [Authorize]
+        [Authorize(Policy = "DbManager")]
+        [HttpPost("db/users")]
+        public async Task UpdateUsersDb([FromBody]UpdateDbRequest value)
+        {
+            BackupDbService backupService = new BackupDbService(_StorageSettings);
+            await backupService.Restore<DbUser>(value.blobName, _UsersRepository);
+        }
+
+        [Authorize(Policy = "UsersManager")]
         [HttpGet("users")]
         public async Task<IEnumerable<DbUser>> GetUsers()
         {
             return await _UsersRepository.GetAllUsers();
+        }
+
+        [Authorize]
+        [HttpPost("user")]
+        public async Task<dynamic> AddUser([FromBody]AddUserRequest value)
+        {
+            var users = await this._UsersRepository.GetAllUsers();
+            var usersWithSameName = users.Where(u => u.username == value.username).FirstOrDefault();
+            if (usersWithSameName != null)
+            {
+                return new StatusCodeResult(400);
+            }
+            var hashedPassword = SeasonAndHashPassword(value.password);
+            var newUser = new DbUser(value.username, hashedPassword, false);
+            await this._UsersRepository.AddUser(newUser);
+
+            return new StatusCodeResult(201);
         }
 
         [HttpPost("auth/login")]
@@ -73,7 +98,7 @@ namespace RestaurantMapAPI
             }
         }
 
-        [HttpGet("auth/refresh")]
+        [HttpPost("auth/refresh")]
         public async Task<dynamic> Refresh([FromBody]RefreshRequest value)
         {
             var users = await this._UsersRepository.GetAllUsers();
@@ -109,7 +134,7 @@ namespace RestaurantMapAPI
         private async Task UpdateUserSessions(DbUser user, AuthResult authResult, RefreshRequest refreshRequest)
         {
             var expirationDate = DateTime.UtcNow.Add(new TimeSpan(24 * 30, 0, 0));
-            var expirationEpoch = (long)(expirationDate.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds; 
+            var expirationEpoch = (long)(expirationDate.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
 
             Session newSession = new Session();
             newSession.accessToken = authResult.accessToken;
@@ -159,13 +184,17 @@ namespace RestaurantMapAPI
 
         private JwtToken GenerateAccessToken(DbUser user)
         {
-           return new JwtTokenBuilder()
-            .AddSecurityKey(JwtSecurityKey.Create(_SecretSettings.Value.TokenIssuerSigningKey))
-            .AddSubject("authentication")
-            .AddIssuer("restaurantmap.security.bearer")
-            .AddAudience("restaurantmap.security.bearer")
-            .AddExpiry(180)
-            .Build();
+            var builder = new JwtTokenBuilder()
+             .AddSecurityKey(JwtSecurityKey.Create(_SecretSettings.Value.TokenIssuerSigningKey))
+             .AddSubject("authentication")
+             .AddIssuer("restaurantmap.security.bearer")
+             .AddAudience("restaurantmap.security.bearer")
+             .AddExpiry(180);
+            foreach (Permission permission in user.permissions)
+            {
+                builder.AddClaim(permission.associatedClaim, "True");
+            }
+            return builder.Build();
         }
 
         private string GenerateRefreshToken()

@@ -11,5 +11,6 @@ namespace RestaurantMapAPI
     {
         Task<IEnumerable<DbUser>> GetAllUsers();
         Task UpdateUser(DbUser user);
+        Task AddUser(DbUser user);
     }
 }

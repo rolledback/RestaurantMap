@@ -44,21 +44,29 @@ namespace RestaurantMapAPI
             services.AddTransient<IRestaurantRepository, LiteDB.RestaurantRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IBackupDbService, BackupDbService>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-              .AddJwtBearer(options => {
-                  options.TokenValidationParameters =
-                       new TokenValidationParameters
-                       {
-                           ValidateIssuer = true,
-                           ValidateAudience = true,
-                           ValidateLifetime = true,
-                           ValidateIssuerSigningKey = true,
 
-                           ValidIssuer = "restaurantmap.security.bearer",
-                           ValidAudience = "restaurantmap.security.bearer",
-                           IssuerSigningKey = JwtSecurityKey.Create(tokenIssuerSigningKey)
-                       };
-              });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = "restaurantmap.security.bearer",
+                        ValidAudience = "restaurantmap.security.bearer",
+                        IssuerSigningKey = JwtSecurityKey.Create(tokenIssuerSigningKey)
+                    };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RestaurantCreate", policy => policy.RequireClaim("RestaurantCreate"));
+                options.AddPolicy("UsersManager", policy => policy.RequireClaim("UsersManager"));
+                options.AddPolicy("DbManager", policy => policy.RequireClaim("DbManager"));
+            });
 
             services.AddSingleton<IScheduledTask, BackupDbTask>();
             services.AddScheduler((sender, args) =>
