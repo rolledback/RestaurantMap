@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rolledback.restaurantmap.Codes;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class AccountManager {
@@ -76,8 +77,7 @@ public class AccountManager {
         });
     }
 
-    public void reauth(Context context, ILoginListener listener) {
-        RestaurantMapApiClient apiClient = new RestaurantMapApiClient(context);
+    public void reauth(Context context, RestaurantMapApiClient apiClient, ILoginListener listener) {
         AuthResult currentAuthInfo = this._getCurrentAuthInfo(context);
         ReauthRequest reauthRequest = new ReauthRequest(currentAuthInfo.user.username, currentAuthInfo.accessToken, currentAuthInfo.refreshToken);
         apiClient.reauth(reauthRequest, new IClientResponseHandler<AuthResult>() {
@@ -92,6 +92,18 @@ public class AccountManager {
                 listener.onLogin(false);
             }
         });
+    }
+
+    public AuthResult reauthSync(Context context, RestaurantMapApiClient apiClient) throws IOException, ApiException {
+        if (apiClient == null) {
+            apiClient = new RestaurantMapApiClient(context);
+        }
+
+        AuthResult currentAuthInfo = this._getCurrentAuthInfo(context);
+        ReauthRequest reauthRequest = new ReauthRequest(currentAuthInfo.user.username, currentAuthInfo.accessToken, currentAuthInfo.refreshToken);
+        AuthResult result = apiClient.reauthSync(reauthRequest);
+        _updateCurrentUser(context, result);
+        return result;
     }
 
     public void logout(Context context) {

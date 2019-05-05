@@ -168,7 +168,7 @@ public class AddRestaurantActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(String error) {
-                            _showFailureToast("Failed to contact server. Please try again later..");
+                            _showFailureToast("Failed to contact server. Please try again later. Error: " + error);
                         }
                     });
                 }
