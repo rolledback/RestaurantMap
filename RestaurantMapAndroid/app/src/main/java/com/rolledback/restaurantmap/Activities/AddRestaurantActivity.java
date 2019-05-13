@@ -70,7 +70,7 @@ public class AddRestaurantActivity extends AppCompatActivity {
 
             ArrayList<String> availableSubGenres = intent.getStringArrayListExtra(Codes.AvailableSubGenresExtra);
             ArrayAdapter<String> subGenresAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availableSubGenres);
-            this._genre.setAdapter(subGenresAdapter);
+            this._subGenre.setAdapter(subGenresAdapter);
         }
     }
 
@@ -99,19 +99,34 @@ public class AddRestaurantActivity extends AppCompatActivity {
     private void _handleSendText(Intent intent) {
         String text = intent.getStringExtra(Intent.EXTRA_TEXT);
         String[] parts = text.split("\n");
+
+        String restaurantName = "";
+        String address = "";
+
         boolean parseSuccessful = false;
+        int parsedLines = 0;
+        int index = 0;
 
-        if (parts.length == 4) {
-            String restaurantName = parts[0];
-            String address = parts[1];
-
-            this._restaurantName.setText(restaurantName);
-            this._address.setText(address);
-
-            parseSuccessful = true;
+        while (parsedLines < 2 && index < parts.length) {
+            String currPart = parts[index];
+            if (!currPart.equals("")) {
+                if (parsedLines == 0) {
+                    restaurantName = currPart;
+                }
+                if (parsedLines == 1) {
+                    address = currPart;
+                }
+                parsedLines++;
+            }
+            index++;
         }
 
-        if (!parseSuccessful) {
+        parseSuccessful = !restaurantName.equals("") && !address.equals("");
+
+        if (parseSuccessful) {
+            this._restaurantName.setText(restaurantName);
+            this._address.setText(address);
+        } else {
             this._showParseFailureToast();
         }
     }
