@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,13 +20,12 @@ import com.rolledback.restaurantmap.Codes;
 import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFilterable;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
-import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -39,13 +37,13 @@ import androidx.core.content.ContextCompat;
 public class RestaurantMap implements IFilterable {
     private Context _context;
     private GoogleMap _map;
-    private ArrayList<RestaurantMarker> _markers;
+    private ArrayList<RestaurantMarker> _restaurantMarkers;
     private FilterManager filterManager;
 
     public RestaurantMap(Context context, GoogleMap map) {
         this._context = context;
         this._map = map;
-        this._markers = new ArrayList<>();
+        this._restaurantMarkers = new ArrayList<>();
         this.filterManager = new FilterManager(context);
     }
 
@@ -84,9 +82,9 @@ public class RestaurantMap implements IFilterable {
             MarkerOptions mOp = new MarkerOptions()
                     .position(new LatLng(location.lat, location.lng))
                     .title(rCurr.name)
-                    .icon(BitmapDescriptorFactory.defaultMarker(this._getMarkerColor(rCurr)));
+                    .icon(BitmapDescriptorFactory.defaultMarker(RestaurantMarker.getGenreMarkerColor(rCurr)));
             Marker marker = this._map.addMarker(mOp);
-            this._markers.add(new RestaurantMarker(marker, rCurr));
+            this._restaurantMarkers.add(new RestaurantMarker(marker, rCurr));
         }
         this.filterManager.initFilters(restaurants);
         this.applyFilters(this.filterManager.getCurrentFilters());
@@ -94,9 +92,9 @@ public class RestaurantMap implements IFilterable {
 
     public void moveToRestaurant(Location loc) {
         RestaurantMarker match = null;
-        for (int i = 0; i < this._markers.size(); i++) {
-            if (this._markers.get(i).isLocation(loc)) {
-                match = this._markers.get(i);
+        for (int i = 0; i < this._restaurantMarkers.size(); i++) {
+            if (this._restaurantMarkers.get(i).isLocation(loc)) {
+                match = this._restaurantMarkers.get(i);
                 break;
             }
         }
@@ -107,10 +105,10 @@ public class RestaurantMap implements IFilterable {
     }
 
     public void clearItems() {
-        for (int i = 0; i < this._markers.size(); i++) {
-            this._markers.get(i).remove();
+        for (int i = 0; i < this._restaurantMarkers.size(); i++) {
+            this._restaurantMarkers.get(i).remove();
         }
-        this._markers.clear();
+        this._restaurantMarkers.clear();
     }
 
     public void saveToCache(List<Restaurant> restaurants) {
@@ -132,7 +130,7 @@ public class RestaurantMap implements IFilterable {
     }
 
     public void applyFilters(LinkedHashMap<String, IViewableFilter> filters) {
-        Iterator<RestaurantMarker> mItr = this._markers.iterator();
+        Iterator<RestaurantMarker> mItr = this._restaurantMarkers.iterator();
         while (mItr.hasNext()) {
             RestaurantMarker mCurr = mItr.next();
             if (mCurr.shouldShow(filters)) {
@@ -149,30 +147,22 @@ public class RestaurantMap implements IFilterable {
     }
 
     public ArrayList<String> getAvailableGenres() {
-        return new ArrayList<>(new LinkedHashSet<>(this._markers.stream().map(m -> m.getGenre()).collect(Collectors.<String>toList())));
+        return new ArrayList<>(new LinkedHashSet<>(this._restaurantMarkers.stream().map(m -> m.getGenre()).collect(Collectors.<String>toList())));
     }
 
     public ArrayList<String> getAvailableSubGenres() {
-        return new ArrayList<>(new LinkedHashSet<>(this._markers.stream().map(m -> m.getSubGenre()).collect(Collectors.<String>toList())));
+        return new ArrayList<>(new LinkedHashSet<>(this._restaurantMarkers.stream().map(m -> m.getSubGenre()).collect(Collectors.<String>toList())));
     }
 
-    private float _getMarkerColor(Restaurant restaurant) {
-        switch (restaurant.rating) {
-            case "Ok":
-                return BitmapDescriptorFactory.HUE_ORANGE;
-            case "Good":
-                return BitmapDescriptorFactory.HUE_AZURE;
-            case "Better":
-                return BitmapDescriptorFactory.HUE_YELLOW;
-            case "Best":
-                return BitmapDescriptorFactory.HUE_GREEN;
-            case "Meh":
-                return BitmapDescriptorFactory.HUE_RED;
-            case "Want to Go":
-                return BitmapDescriptorFactory.HUE_VIOLET;
-            default:
-                return BitmapDescriptorFactory.HUE_RED;
+    public Restaurant getRestaurantFromMarker(Marker m) {
+        Iterator<RestaurantMarker> iter  = this._restaurantMarkers.iterator();
+        while (iter.hasNext()) {
+            RestaurantMarker restaurantMarker = iter.next();
+            if (restaurantMarker.getMarker().equals((m))) {
+                return restaurantMarker.getRestaurant();
+            }
         }
+        return null;
     }
 
     private void _moveToMarker(RestaurantMarker marker) {

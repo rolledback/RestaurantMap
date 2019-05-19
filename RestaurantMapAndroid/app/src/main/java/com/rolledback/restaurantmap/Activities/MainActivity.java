@@ -15,6 +15,7 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rolledback.restaurantmap.Codes;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
-        this.restaurantMap = new RestaurantMap(this, googleMap);
+        this.restaurantMap = new RestaurantMap(this, this.mMap);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         boolean moveSuccessful = restaurantMap.moveToStartingLocation();
         if (!moveSuccessful) {
@@ -86,6 +87,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         this._refreshMap(null);
+
+        MainActivity activity = this;
+        this.mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Restaurant restaurant = activity.restaurantMap.getRestaurantFromMarker(marker);
+                if (restaurant != null) {
+                    Intent intent = new Intent(activity, ViewRestaurantActivity.class);
+                    intent.putExtra("restaurant", restaurant);
+                    startActivity(intent);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override

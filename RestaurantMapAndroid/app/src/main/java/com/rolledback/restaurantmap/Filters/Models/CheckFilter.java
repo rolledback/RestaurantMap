@@ -25,6 +25,10 @@ public class CheckFilter implements IViewableFilter<Pair<String, Boolean>> {
         return new CheckFilterView(context, this._title, this._description, this._checked, this._alwaysShow);
     }
 
+    public String getTitle() {
+        return this._title;
+    }
+
     @Override
     public Pair<String, Boolean> getValue() {
         return new Pair<String, Boolean>(this._title, this._checked);
@@ -59,9 +63,5 @@ public class CheckFilter implements IViewableFilter<Pair<String, Boolean>> {
         dest.writeString(this._title);
         dest.writeString(this._description);
         dest.writeByte(this._alwaysShow ? (byte)1 : (byte)0);
-    }
-
-    public String getTitle() {
-        return this._title;
     }
 }

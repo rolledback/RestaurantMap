@@ -39,4 +39,5 @@
         <item>Meh</item>
         <item>Want to Go</item>
     </string-array>
+    <string name="title_activity_view_restaurant">View Restaurant</string>
 </resources>

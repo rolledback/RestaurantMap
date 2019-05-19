@@ -2,6 +2,7 @@ package com.rolledback.restaurantmap.Map;
 
 import android.util.Pair;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.rolledback.restaurantmap.Filters.Models.CheckFilter;
 import com.rolledback.restaurantmap.Filters.Models.FilterList;
@@ -16,6 +17,26 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class RestaurantMarker {
+
+    public static float getGenreMarkerColor(Restaurant restaurant) {
+        switch (restaurant.rating) {
+            case "Ok":
+                return BitmapDescriptorFactory.HUE_ORANGE;
+            case "Good":
+                return BitmapDescriptorFactory.HUE_AZURE;
+            case "Better":
+                return BitmapDescriptorFactory.HUE_YELLOW;
+            case "Best":
+                return BitmapDescriptorFactory.HUE_GREEN;
+            case "Meh":
+                return BitmapDescriptorFactory.HUE_RED;
+            case "Want to Go":
+                return BitmapDescriptorFactory.HUE_VIOLET;
+            default:
+                return BitmapDescriptorFactory.HUE_RED;
+        }
+    }
+
     private Marker _marker;
     private Restaurant _restaurant;
 
@@ -92,6 +113,14 @@ public class RestaurantMarker {
 
     public boolean isVisible() {
         return this._marker.isVisible();
+    }
+
+    public Marker getMarker() {
+        return this._marker;
+    }
+
+    public Restaurant getRestaurant() {
+        return this._restaurant;
     }
 
     private boolean _evalRatingFilter(FilterList<Pair<String, Boolean>, CheckFilter> filter) {

@@ -20,14 +20,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".Activities.ViewRestaurantActivity"
+            android:label="@string/title_activity_view_restaurant"></activity>
+        <activity
             android:name=".Activities.AddRestaurantActivity"
             android:label="@string/title_activity_new_restaurant">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Activities.MainActivity" />
+
             <intent-filter android:label="Add Restaurant">
-                <action android:name="android.intent.action.SEND"></action>
+                <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
@@ -62,6 +68,7 @@
             android:label="@string/title_activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
