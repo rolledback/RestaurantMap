@@ -1,6 +1,8 @@
 package com.rolledback.restaurantmap.Activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -18,6 +20,7 @@ import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 public class ViewRestaurantActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap _mMap;
@@ -62,6 +65,10 @@ public class ViewRestaurantActivity extends AppCompatActivity implements OnMapRe
         LatLng restaurantLoc = new LatLng(_model.location.lat, _model.location.lng );
         this._mMap.moveCamera(CameraUpdateFactory.zoomTo(12));
         this._mMap.moveCamera(CameraUpdateFactory.newLatLng(restaurantLoc));
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            this._mMap.setMyLocationEnabled(true);
+        }
 
         Location location = _model.location;
         MarkerOptions mOp = new MarkerOptions()

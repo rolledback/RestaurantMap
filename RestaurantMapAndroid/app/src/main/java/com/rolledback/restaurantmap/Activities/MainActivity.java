@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rolledback.restaurantmap.Codes;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private RestaurantMap restaurantMap;
     private FrameLayout filtersFragmentContainer;
+    private MaterialButton _filterbutton;
     FloatingActionButton _addButton;
 
     @Override
@@ -64,7 +67,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this._addButton.setOnClickListener(v -> {
             _openAddActivity();
         });
-        this._checkIfAccountExists();
+        this._addButton.hide();
+        this._filterbutton = findViewById(R.id.filter_button);
+        this._filterbutton.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -86,7 +91,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, Codes.LocationPermissionsRequest);
         }
 
-        this._refreshMap(null);
+        this._refreshMap(new IRefreshCallback() {
+            @Override
+            public void callback() {
+                _checkIfAccountExists();
+                _filterbutton.setVisibility(View.VISIBLE);
+            }
+        });
 
         MainActivity activity = this;
         this.mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
