@@ -19,26 +19,21 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
-import com.rolledback.restaurantmap.Map.RestaurantMap;
+import com.rolledback.restaurantmap.Lib.AppState;
+import com.rolledback.restaurantmap.Lib.RestaurantMap;
 import com.rolledback.restaurantmap.R;
+import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends MainFragment implements OnMapReadyCallback {
     private GoogleMap _map;
     private RestaurantMap _restaurantMap;
 
     public MapFragment() {
         // Required empty public constructor
-    }
-
-    public static MapFragment newInstance() {
-        MapFragment fragment = new MapFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -116,5 +111,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             this._map.moveCamera(CameraUpdateFactory.zoomTo(8));
             this._map.moveCamera(CameraUpdateFactory.newLatLng(seattle));
         }
+    }
+
+    public void moveToLocation(Location loc) {
+        this._restaurantMap.moveToLocation(loc);
+    }
+
+    @Override
+    public boolean shouldShowAddButton(AppState currState) {
+        return currState.restaurantsLoaded && currState.loggedIn;
+    }
+
+    @Override
+    public boolean shouldShowFilterButton(AppState currState) {
+        return currState.restaurantsLoaded;
     }
 }

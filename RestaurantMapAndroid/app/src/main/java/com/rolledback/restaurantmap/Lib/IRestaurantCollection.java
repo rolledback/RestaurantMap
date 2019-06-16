@@ -1,10 +1,8 @@
-package com.rolledback.restaurantmap.Map;
+package com.rolledback.restaurantmap.Lib;
 
-import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public interface IRestaurantCollection {

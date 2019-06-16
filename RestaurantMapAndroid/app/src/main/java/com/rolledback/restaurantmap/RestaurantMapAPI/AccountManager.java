@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.rolledback.restaurantmap.Codes;
+import com.rolledback.restaurantmap.Lib.Codes;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

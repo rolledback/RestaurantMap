@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap.Map;
+package com.rolledback.restaurantmap.Lib;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,20 +6,14 @@ import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.rolledback.restaurantmap.Codes;
-import com.rolledback.restaurantmap.Filters.FilterManager;
-import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
-import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RestaurantCollection implements IRestaurantCollection {
 

@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap;
+package com.rolledback.restaurantmap.Lib;
 
 public class Codes {
     public static final int LoginActivityRequest = 1492;

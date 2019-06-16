@@ -2,7 +2,6 @@ package com.rolledback.restaurantmap.Activities;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,23 +13,27 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.rolledback.restaurantmap.Codes;
+import com.rolledback.restaurantmap.Lib.Codes;
 import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
+import com.rolledback.restaurantmap.FragmentInterfaces.IAppLoginListener;
+import com.rolledback.restaurantmap.Fragments.AccountFragment;
 import com.rolledback.restaurantmap.Fragments.FiltersFragment;
+import com.rolledback.restaurantmap.Fragments.LoginFragment;
+import com.rolledback.restaurantmap.Fragments.MainFragment;
 import com.rolledback.restaurantmap.Fragments.MapFragment;
-import com.rolledback.restaurantmap.Map.IRestaurantCollection;
-import com.rolledback.restaurantmap.Map.RestaurantCollection;
+import com.rolledback.restaurantmap.Lib.AppState;
+import com.rolledback.restaurantmap.Lib.IRestaurantCollection;
+import com.rolledback.restaurantmap.Lib.RestaurantCollection;
 import com.rolledback.restaurantmap.R;
+import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
@@ -39,10 +42,11 @@ import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IFiltersChangedListener {
+public class MainActivity extends AppCompatActivity implements IFiltersChangedListener, IAppLoginListener {
     private IRestaurantCollection _restaurantCollection;
     private RestaurantMapApiClient _apiClient;
     private FilterManager _filterManager;
+    private AppState _currState;
 
     private FrameLayout filtersFragmentContainer;
     private MaterialButton _filterButton;
@@ -50,8 +54,9 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
 
     private MapFragment _mapFragment;
     private MapFragment _listFragment;
-    private MapFragment _acctFragment;
-    private Fragment _activeFragment;
+    private LoginFragment _loginFragment;
+    private AccountFragment _acctFragment;
+    private MainFragment _activeFragment;
 
     FloatingActionButton _addButton;
 
@@ -60,11 +65,16 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        _currState = new AppState();
+        _currState.loggedIn = AccountManager.getInstance().currentUser(this) != null;
+
         _mapFragment = new MapFragment();
         _listFragment = new MapFragment();
-        _acctFragment = new MapFragment();
+        _loginFragment = new LoginFragment();
+        _acctFragment = new AccountFragment();
 
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _acctFragment).hide(_acctFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _loginFragment).hide(_loginFragment).commit();
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _listFragment).hide(_listFragment).commit();
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _mapFragment).commit();
         _activeFragment = _mapFragment;
@@ -75,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         _bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Fragment selectedFragment = null;
+                MainFragment selectedFragment = null;
                 switch (menuItem.getItemId()) {
                     case R.id.nav_map:
                         selectedFragment = _mapFragment;
@@ -84,12 +94,14 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
                         selectedFragment = _listFragment;
                         break;
                     case R.id.nav_account:
-                        selectedFragment = _acctFragment;
+                        if (_currState.loggedIn) {
+                            selectedFragment = _acctFragment;
+                        } else {
+                            selectedFragment = _loginFragment;
+                        }
                         break;
                 }
-
-                getSupportFragmentManager().beginTransaction().hide(_activeFragment).show(selectedFragment).commit();
-                _activeFragment = selectedFragment;
+                _changeFragment(selectedFragment);
 
                 return true;
             }
@@ -113,27 +125,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         this._apiClient = new RestaurantMapApiClient(this);
         this._filterManager = new FilterManager(this);
 
-        _apiClient.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
-            @Override
-            public void onSuccess(List<Restaurant> response) {
-                _restaurantCollection.addItems(response);
-                _restaurantCollection.saveToCache();
-                _addButton.show();
-                _filterButton.setVisibility(View.VISIBLE);
-                _mapFragment.setRestaurants(_restaurantCollection.getItems());
-                _filterManager.initFilters(_restaurantCollection.getItems());
-            }
-
-            @Override
-            public void onFailure(String error) {
-                _showFailureToast();
-                _restaurantCollection.loadFromCache();
-                _addButton.show();
-                _filterButton.setVisibility(View.VISIBLE);
-                _mapFragment.setRestaurants(_restaurantCollection.getItems());
-                _filterManager.initFilters(_restaurantCollection.getItems());
-            }
-        });
+        this._refresh(null);
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Codes.LocationPermissionsRequest);
     }
@@ -144,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     }
 
     public void showFilters() {
-        FiltersFragment filtersFragment = FiltersFragment.newInstance();
+        FiltersFragment filtersFragment = new FiltersFragment();
 
         Bundle args = new Bundle();
         args.putSerializable("filters", this._filterManager.getCurrentFilters());
@@ -172,46 +164,27 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
         switch (item.getItemId()) {
-            case Codes.LoginButtonAction:
-                intent = new Intent(this, LoginActivity.class);
-                startActivityForResult(intent, Codes.LoginActivityRequest);
-                return true;
-            case Codes.ShowProfileAction:
-                intent = new Intent(this, ProfileActivity.class);
-                startActivityForResult(intent, Codes.ProfileActivityRequest);
-                return true;
             case Codes.RefreshButtonAction:
-                this._refreshMap(null);
+                this._refresh(null);
                 return true;
         }
-        return true;
+        return false;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Codes.LoginActivityRequest) {
-            if (resultCode == Codes.ResultLogin) {
-                invalidateOptionsMenu();
-                this._checkIfAccountExists();
-            }
-        }
-        if (requestCode == Codes.ProfileActivityRequest) {
-            if (resultCode == Codes.ResultLogout) {
-                invalidateOptionsMenu();
-                this._checkIfAccountExists();
-            }
-        }
         if (requestCode == Codes.AddActivityRequest) {
             if (resultCode == Codes.ResultRestaurantAdded) {
-                this._refreshMap(new IRefreshCallback() {
+                this._refresh(new IRefreshCallback() {
                     @Override
                     public void callback() {
-                        Location loc = new Location();
-                        loc.lat = data.getDoubleExtra("lat", Integer.MIN_VALUE);
-                        loc.lng = data.getDoubleExtra("lng", Integer.MIN_VALUE);
-                        _scrollMapToRestaurant(loc);
+                        if (_activeFragment.equals(_mapFragment)) {
+                            Location loc = new Location();
+                            loc.lat = data.getDoubleExtra("lat", Integer.MIN_VALUE);
+                            loc.lng = data.getDoubleExtra("lng", Integer.MIN_VALUE);
+                            _mapFragment.moveToLocation(loc);
+                        }
                     }
                 });
             }
@@ -227,48 +200,68 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     }
 
     private void _openAddActivity() {
-//        Intent intent = new Intent(this, AddRestaurantActivity.class);
-//        intent.putStringArrayListExtra(Codes.AvailableGenresExtra, this.restaurantMap.getAvailableGenres());
-//        intent.putStringArrayListExtra(Codes.AvailableSubGenresExtra, this.restaurantMap.getAvailableSubGenres());
-//        startActivityForResult(intent, Codes.AddActivityRequest);
+        Intent intent = new Intent(this, AddRestaurantActivity.class);
+        intent.putStringArrayListExtra(Codes.AvailableGenresExtra, this._restaurantCollection.availableGenres());
+        intent.putStringArrayListExtra(Codes.AvailableSubGenresExtra, this._restaurantCollection.availableSubGenres());
+        startActivityForResult(intent, Codes.AddActivityRequest);
     }
 
-    private void _checkIfAccountExists() {
-//        User currUser = AccountManager.getInstance().currentUser(this);
-//        if (currUser == null) {
-//            this._addButton.hide();
-//        } else {
-//            this._addButton.show();
-//        }
+    private void _refresh(IRefreshCallback callback) {
+        _apiClient.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
+            @Override
+            public void onSuccess(List<Restaurant> response) {
+                _restaurantCollection.addItems(response);
+                _restaurantCollection.saveToCache();
+                _mapFragment.setRestaurants(_restaurantCollection.getItems());
+                _filterManager.initFilters(_restaurantCollection.getItems());
+                if (callback != null) {
+                    callback.callback();
+                }
+
+                _currState.restaurantsLoaded = true;
+                _updateButtonsState();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                _showFailureToast();
+                _restaurantCollection.loadFromCache();
+                _mapFragment.setRestaurants(_restaurantCollection.getItems());
+                _filterManager.initFilters(_restaurantCollection.getItems());
+
+                _currState.restaurantsLoaded = true;
+                _updateButtonsState();
+            }
+        });
     }
 
-    private void _refreshMap(IRefreshCallback callback) {
-//        RestaurantMapApiClient client = new RestaurantMapApiClient(this);
-//        client.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
-//            @Override
-//            public void onSuccess(List<Restaurant> response) {
-//                restaurantMap.clearItems();
-//                restaurantMap.addItems(response);
-//                restaurantMap.saveToCache(response);
-//                if (callback != null) {
-//                    callback.callback();;
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(String error) {
-//                _showFailureToast();
-//                restaurantMap.clearItems();
-//                restaurantMap.loadFromCache();
-//            }
-//        });
-    }
-
-    private void _scrollMapToRestaurant(Location loc) {
-//        this.restaurantMap.moveToRestaurant(loc);
+    @Override
+    public void onLoginEvent() {
+        _currState.loggedIn = true;
+        _changeFragment(_acctFragment);
     }
 
     private interface IRefreshCallback {
         void callback();
+    }
+
+    private void _changeFragment(MainFragment newFragment) {
+        getSupportFragmentManager().beginTransaction().hide(_activeFragment).show(newFragment).commit();
+        _activeFragment = newFragment;
+        _updateButtonsState();
+    }
+
+    private void _updateButtonsState() {
+        if (_activeFragment != null && _activeFragment.shouldShowAddButton(_currState)) {
+            _addButton.show();
+        } else {
+            _addButton.hide();
+        }
+
+        if (_activeFragment != null && _activeFragment.shouldShowFilterButton(_currState)) {
+            _filterButton.setVisibility(View.VISIBLE);
+        } else {
+            _filterButton.setVisibility(View.INVISIBLE);
+        }
     }
 }

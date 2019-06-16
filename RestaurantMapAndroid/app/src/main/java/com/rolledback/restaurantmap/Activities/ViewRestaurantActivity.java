@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.rolledback.restaurantmap.Map.RestaurantMarker;
+import com.rolledback.restaurantmap.Lib.RestaurantMarker;
 import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;

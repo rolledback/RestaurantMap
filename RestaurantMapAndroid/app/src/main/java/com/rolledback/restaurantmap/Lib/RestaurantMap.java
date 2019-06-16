@@ -1,12 +1,4 @@
-package com.rolledback.restaurantmap.Map;
-
-import android.Manifest;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.LocationManager;
-import android.preference.PreferenceManager;
+package com.rolledback.restaurantmap.Lib;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,25 +6,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.rolledback.restaurantmap.Codes;
-import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFilterable;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import androidx.core.content.ContextCompat;
 
 public class RestaurantMap implements IFilterable {
     private GoogleMap _map;

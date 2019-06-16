@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -14,7 +13,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.rolledback.restaurantmap.Codes;
+import com.rolledback.restaurantmap.Lib.Codes;
 import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;

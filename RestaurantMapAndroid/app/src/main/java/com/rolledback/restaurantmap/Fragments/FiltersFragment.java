@@ -19,33 +19,12 @@ import java.util.Map;
 
 import androidx.fragment.app.Fragment;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link IFiltersChangedListener} interface
- * to handle interaction events.
- * Use the {@link FiltersFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FiltersFragment extends Fragment {
-    private IFiltersChangedListener filtersChangedListener;
-    private LinearLayout linearLayout;
-    private LinkedHashMap<String, IFilterView> filterViews;
+    private IFiltersChangedListener _filtersChangedListener;
+    private LinearLayout _linearLayout;
+    private LinkedHashMap<String, IFilterView> _filterViews;
 
     public FiltersFragment() {
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment FiltersFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FiltersFragment newInstance() {
-        FiltersFragment fragment = new FiltersFragment();
-        return fragment;
     }
 
     @Override
@@ -57,8 +36,8 @@ public class FiltersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_filters, container, false);
-        this.linearLayout = view.findViewById(R.id.linear_layout);
-        this.filterViews = new LinkedHashMap<>();
+        this._linearLayout = view.findViewById(R.id.linear_layout);
+        this._filterViews = new LinkedHashMap<>();
 
         LinkedHashMap<String, IViewableFilter> filters = (LinkedHashMap<String, IViewableFilter>)getArguments().getSerializable("filters");
 
@@ -70,15 +49,15 @@ public class FiltersFragment extends Fragment {
             Map.Entry<String, IViewableFilter> pair = (Map.Entry)fIt.next();
             IViewableFilter filter = pair.getValue();
             IFilterView filterView = filter.getView(getContext());
-            this.linearLayout.addView(filterView.asView());
-            this.filterViews.put(pair.getKey(), filterView);
+            this._linearLayout.addView(filterView.asView());
+            this._filterViews.put(pair.getKey(), filterView);
             if (i != mapSize - 1) {
-                this.linearLayout.addView(new Separator(getContext()));
+                this._linearLayout.addView(new Separator(getContext()));
             }
             i++;
         }
 
-        Iterator fvIt = filterViews.entrySet().iterator();
+        Iterator fvIt = _filterViews.entrySet().iterator();
         while (fvIt.hasNext()) {
             Map.Entry<String, IFilterView> pair = (Map.Entry)fvIt.next();
             IFilterView filterView = pair.getValue();
@@ -93,7 +72,7 @@ public class FiltersFragment extends Fragment {
         super.onAttach(context);
 
         if (context instanceof IFiltersChangedListener) {
-            filtersChangedListener = (IFiltersChangedListener) context;
+            _filtersChangedListener = (IFiltersChangedListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
         }
@@ -102,20 +81,20 @@ public class FiltersFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        filtersChangedListener = null;
+        _filtersChangedListener = null;
     }
 
     private boolean _sendChangedFilters() {
         LinkedHashMap<String, IViewableFilter> newFilters = new LinkedHashMap<String, IViewableFilter>();
 
-        Iterator fvIt = filterViews.entrySet().iterator();
+        Iterator fvIt = _filterViews.entrySet().iterator();
         while (fvIt.hasNext()) {
             Map.Entry<String, IFilterView> pair = (Map.Entry)fvIt.next();
             IFilterView filterView = pair.getValue();
             newFilters.put(pair.getKey(), filterView.asModel());
         }
 
-        filtersChangedListener.onFiltersChanged(newFilters);
+        _filtersChangedListener.onFiltersChanged(newFilters);
 
         return true;
     }

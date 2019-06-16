@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap.Map;
+package com.rolledback.restaurantmap.Lib;
 
 import android.util.Pair;
 
