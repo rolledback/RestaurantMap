@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -17,7 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rolledback.restaurantmap.Lib.Codes;
 import com.rolledback.restaurantmap.Filters.FilterManager;
@@ -49,7 +47,8 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     private AppState _currState;
 
     private FrameLayout filtersFragmentContainer;
-    private MaterialButton _filterButton;
+    private ExtendedFloatingActionButton _filterButton;
+    private FloatingActionButton _addButton;
     private BottomNavigationView _bottomNavBar;
 
     private MapFragment _mapFragment;
@@ -58,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     private AccountFragment _acctFragment;
     private MainFragment _activeFragment;
 
-    FloatingActionButton _addButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,11 +105,6 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
             }
         });
 
-        Button filterButton = findViewById(R.id.filter_button);
-        filterButton.setOnClickListener(view -> {
-            showFilters();
-        });
-
         this._addButton = findViewById(R.id.add_button);
         this._addButton.setOnClickListener(v -> {
             _openAddActivity();
@@ -119,7 +112,10 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         this._addButton.hide();
 
         this._filterButton = findViewById(R.id.filter_button);
-        this._filterButton.setVisibility(View.INVISIBLE);
+        this._filterButton.setOnClickListener(view -> {
+            _showFilters();
+        });
+        this._filterButton.hide();
 
         this._restaurantCollection = new RestaurantCollection(this);
         this._apiClient = new RestaurantMapApiClient(this);
@@ -135,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         this._mapFragment.moveToInitialLocation();
     }
 
-    public void showFilters() {
+    public void _showFilters() {
         FiltersFragment filtersFragment = new FiltersFragment();
 
         Bundle args = new Bundle();
@@ -259,9 +255,9 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         }
 
         if (_activeFragment != null && _activeFragment.shouldShowFilterButton(_currState)) {
-            _filterButton.setVisibility(View.VISIBLE);
+            _filterButton.show();
         } else {
-            _filterButton.setVisibility(View.INVISIBLE);
+            _filterButton.hide();
         }
     }
 }

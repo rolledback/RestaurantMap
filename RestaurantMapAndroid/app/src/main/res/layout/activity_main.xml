@@ -21,16 +21,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/filter_button"
-            style="@style/floating_action_button_extended_middle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="84dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="18dp"
             android:stateListAnimator="@null"
             android:text="@string/filter_button_label"
-            app:cornerRadius="32dp"
             app:icon="@drawable/ic_tune"
             app:iconTint="@android:color/white"
             app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
@@ -39,15 +36,13 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_button"
-            style="@style/floating_action_button_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="420dp"
             android:clickable="true"
             android:src="@drawable/ic_baseline_add_24px"
             android:stateListAnimator="@null"
             android:tint="@android:color/white"
+            android:layout_margin="16dp"
             app:elevation="0dp"
             app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -56,9 +51,9 @@
             android:id="@+id/bottom_nav_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:menu="@menu/bottom_navigation"
-            android:background="?android:attr/windowBackground"
             tools:layout_editor_absoluteX="0dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
     <FrameLayout
