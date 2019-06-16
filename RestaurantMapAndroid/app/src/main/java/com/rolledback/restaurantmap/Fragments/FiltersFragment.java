@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap.Activities;
+package com.rolledback.restaurantmap.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;

@@ -15,7 +15,7 @@
         android:layout_height="200dp"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent"
-        tools:context=".Activities.MainActivity" />
+        tools:context=".Activities.MainActivity_2" />
 
     <TextView
         android:id="@+id/restaurant_name"

@@ -35,62 +35,39 @@ import java.util.stream.Collectors;
 import androidx.core.content.ContextCompat;
 
 public class RestaurantMap implements IFilterable {
-    private Context _context;
     private GoogleMap _map;
+    private ArrayList<Restaurant> _restaurants;
     private ArrayList<RestaurantMarker> _restaurantMarkers;
-    private FilterManager filterManager;
 
-    public RestaurantMap(Context context, GoogleMap map) {
-        this._context = context;
+    public RestaurantMap() {
+    }
+
+    public void setMap(GoogleMap map) {
         this._map = map;
-        this._restaurantMarkers = new ArrayList<>();
-        this.filterManager = new FilterManager(context);
     }
 
-    public boolean moveToStartingLocation() {
-        if (ContextCompat.checkSelfPermission(this._context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            this._map.setMyLocationEnabled(true);
-            try {
-                LocationManager manager = (LocationManager) this._context.getSystemService(Context.LOCATION_SERVICE);
-                Criteria mCriteria = new Criteria();
-                String bestProvider = String.valueOf(manager.getBestProvider(mCriteria, true));
-                android.location.Location mLocation = manager.getLastKnownLocation(bestProvider);
-                if (mLocation != null) {
-                    final double currentLatitude = mLocation.getLatitude();
-                    final double currentLongitude = mLocation.getLongitude();
-                    this._map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLatitude, currentLongitude), 13));
-                    this._map.animateCamera(CameraUpdateFactory.zoomTo(13), 2000, null);
-                }
-                return true;
-            } catch (SecurityException e) {
-                // Shouldn't happen?
-                return false;
+    public void initMarkers() {
+        if (this._map != null && this._restaurants != null) {
+            this._restaurantMarkers = new ArrayList<>();
+            Iterator<Restaurant> rItr = this._restaurants.iterator();
+            while (rItr.hasNext()) {
+                Restaurant rCurr = rItr.next();
+                Location location = rCurr.location;
+                MarkerOptions mOp = new MarkerOptions()
+                        .position(new LatLng(location.lat, location.lng))
+                        .title(rCurr.name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(RestaurantMarker.getGenreMarkerColor(rCurr)));
+                Marker marker = this._map.addMarker(mOp);
+                this._restaurantMarkers.add(new RestaurantMarker(marker, rCurr));
             }
-        } else {
-            LatLng seattle = new LatLng(47.609722, -122.333056 );
-            this._map.moveCamera(CameraUpdateFactory.zoomTo(8));
-            this._map.moveCamera(CameraUpdateFactory.newLatLng(seattle));
-            return false;
         }
     }
 
-    public void addItems(List<Restaurant> restaurants) {
-        Iterator<Restaurant> rItr = restaurants.iterator();
-        while (rItr.hasNext()) {
-            Restaurant rCurr = rItr.next();
-            Location location = rCurr.location;
-            MarkerOptions mOp = new MarkerOptions()
-                    .position(new LatLng(location.lat, location.lng))
-                    .title(rCurr.name)
-                    .icon(BitmapDescriptorFactory.defaultMarker(RestaurantMarker.getGenreMarkerColor(rCurr)));
-            Marker marker = this._map.addMarker(mOp);
-            this._restaurantMarkers.add(new RestaurantMarker(marker, rCurr));
-        }
-        this.filterManager.initFilters(restaurants);
-        this.applyFilters(this.filterManager.getCurrentFilters());
+    public void setItems(List<Restaurant> restaurants) {
+        this._restaurants = new ArrayList<>(restaurants);
     }
 
-    public void moveToRestaurant(Location loc) {
+    public void moveToLocation(Location loc) {
         RestaurantMarker match = null;
         for (int i = 0; i < this._restaurantMarkers.size(); i++) {
             if (this._restaurantMarkers.get(i).isLocation(loc)) {
@@ -104,31 +81,6 @@ public class RestaurantMap implements IFilterable {
         }
     }
 
-    public void clearItems() {
-        for (int i = 0; i < this._restaurantMarkers.size(); i++) {
-            this._restaurantMarkers.get(i).remove();
-        }
-        this._restaurantMarkers.clear();
-    }
-
-    public void saveToCache(List<Restaurant> restaurants) {
-        SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this._context);
-        SharedPreferences.Editor prefsEditor = appSharedPref.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(restaurants);
-        prefsEditor.putString(Codes.RestaurantCacheSharedPref, json);
-        prefsEditor.commit();
-    }
-
-    public void loadFromCache() {
-        SharedPreferences appSharedPref = PreferenceManager.getDefaultSharedPreferences(this._context);
-        Gson gson = new Gson();
-        String json = appSharedPref.getString(Codes.RestaurantCacheSharedPref, "");
-        Type type = new TypeToken<List<Restaurant>>(){}.getType();
-        List<Restaurant> restaurants = gson.fromJson(json, type);
-        this.addItems(restaurants);
-    }
-
     public void applyFilters(LinkedHashMap<String, IViewableFilter> filters) {
         Iterator<RestaurantMarker> mItr = this._restaurantMarkers.iterator();
         while (mItr.hasNext()) {
@@ -139,19 +91,6 @@ public class RestaurantMap implements IFilterable {
                 mCurr.hide();
             }
         }
-        this.filterManager.setCurrentFilters(filters);
-    }
-
-    public LinkedHashMap<String, IViewableFilter> getCurrentFilters() {
-        return this.filterManager.getCurrentFilters();
-    }
-
-    public ArrayList<String> getAvailableGenres() {
-        return new ArrayList<>(new LinkedHashSet<>(this._restaurantMarkers.stream().map(m -> m.getGenre()).collect(Collectors.<String>toList())));
-    }
-
-    public ArrayList<String> getAvailableSubGenres() {
-        return new ArrayList<>(new LinkedHashSet<>(this._restaurantMarkers.stream().map(m -> m.getSubGenre()).collect(Collectors.<String>toList())));
     }
 
     public Restaurant getRestaurantFromMarker(Marker m) {

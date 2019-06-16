@@ -3,7 +3,6 @@ package com.rolledback.restaurantmap.Activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,39 +11,48 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Marker;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rolledback.restaurantmap.Codes;
+import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
-import com.rolledback.restaurantmap.Map.RestaurantMap;
+import com.rolledback.restaurantmap.Fragments.FiltersFragment;
+import com.rolledback.restaurantmap.Fragments.MapFragment;
+import com.rolledback.restaurantmap.Map.IRestaurantCollection;
+import com.rolledback.restaurantmap.Map.RestaurantCollection;
 import com.rolledback.restaurantmap.R;
-import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;
-import com.rolledback.restaurantmap.RestaurantMapAPI.AuthResult;
 import com.rolledback.restaurantmap.RestaurantMapAPI.IClientResponseHandler;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Location;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
-import com.rolledback.restaurantmap.RestaurantMapAPI.User;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+public class MainActivity extends AppCompatActivity implements IFiltersChangedListener {
+    private IRestaurantCollection _restaurantCollection;
+    private RestaurantMapApiClient _apiClient;
+    private FilterManager _filterManager;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, IFiltersChangedListener {
-    private GoogleMap mMap;
-    private RestaurantMap restaurantMap;
     private FrameLayout filtersFragmentContainer;
-    private MaterialButton _filterbutton;
+    private MaterialButton _filterButton;
+    private BottomNavigationView _bottomNavBar;
+
+    private MapFragment _mapFragment;
+    private MapFragment _listFragment;
+    private MapFragment _acctFragment;
+    private Fragment _activeFragment;
+
     FloatingActionButton _addButton;
 
     @Override
@@ -52,11 +60,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        _mapFragment = new MapFragment();
+        _listFragment = new MapFragment();
+        _acctFragment = new MapFragment();
+
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _acctFragment).hide(_acctFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _listFragment).hide(_listFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, _mapFragment).commit();
+        _activeFragment = _mapFragment;
 
         filtersFragmentContainer = findViewById(R.id.filters_fragment_container);
+
+        _bottomNavBar = findViewById(R.id.bottom_nav_bar);
+        _bottomNavBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                Fragment selectedFragment = null;
+                switch (menuItem.getItemId()) {
+                    case R.id.nav_map:
+                        selectedFragment = _mapFragment;
+                        break;
+                    case R.id.nav_list:
+                        selectedFragment = _listFragment;
+                        break;
+                    case R.id.nav_account:
+                        selectedFragment = _acctFragment;
+                        break;
+                }
+
+                getSupportFragmentManager().beginTransaction().hide(_activeFragment).show(selectedFragment).commit();
+                _activeFragment = selectedFragment;
+
+                return true;
+            }
+        });
 
         Button filterButton = findViewById(R.id.filter_button);
         filterButton.setOnClickListener(view -> {
@@ -68,67 +105,49 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             _openAddActivity();
         });
         this._addButton.hide();
-        this._filterbutton = findViewById(R.id.filter_button);
-        this._filterbutton.setVisibility(View.INVISIBLE);
-    }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        this.mMap = googleMap;
-        this.restaurantMap = new RestaurantMap(this, this.mMap);
-        googleMap.getUiSettings().setMapToolbarEnabled(false);
-        boolean moveSuccessful = restaurantMap.moveToStartingLocation();
-        if (!moveSuccessful) {
-            ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.ACCESS_FINE_LOCATION }, Codes.LocationPermissionsRequest);
-        }
+        this._filterButton = findViewById(R.id.filter_button);
+        this._filterButton.setVisibility(View.INVISIBLE);
 
-        this._refreshMap(new IRefreshCallback() {
+        this._restaurantCollection = new RestaurantCollection(this);
+        this._apiClient = new RestaurantMapApiClient(this);
+        this._filterManager = new FilterManager(this);
+
+        _apiClient.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
             @Override
-            public void callback() {
-                _checkIfAccountExists();
-                _filterbutton.setVisibility(View.VISIBLE);
+            public void onSuccess(List<Restaurant> response) {
+                _restaurantCollection.addItems(response);
+                _restaurantCollection.saveToCache();
+                _addButton.show();
+                _filterButton.setVisibility(View.VISIBLE);
+                _mapFragment.setRestaurants(_restaurantCollection.getItems());
+                _filterManager.initFilters(_restaurantCollection.getItems());
+            }
+
+            @Override
+            public void onFailure(String error) {
+                _showFailureToast();
+                _restaurantCollection.loadFromCache();
+                _addButton.show();
+                _filterButton.setVisibility(View.VISIBLE);
+                _mapFragment.setRestaurants(_restaurantCollection.getItems());
+                _filterManager.initFilters(_restaurantCollection.getItems());
             }
         });
 
-        MainActivity activity = this;
-        this.mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Restaurant restaurant = activity.restaurantMap.getRestaurantFromMarker(marker);
-                if (restaurant != null) {
-                    Intent intent = new Intent(activity, ViewRestaurantActivity.class);
-                    intent.putExtra("restaurant", restaurant);
-                    startActivity(intent);
-                    return true;
-                }
-                return false;
-            }
-        });
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Codes.LocationPermissionsRequest);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == Codes.LocationPermissionsRequest) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                this.restaurantMap.moveToStartingLocation();
-            }
-        }
+        this._mapFragment.moveToInitialLocation();
     }
 
     public void showFilters() {
         FiltersFragment filtersFragment = FiltersFragment.newInstance();
 
         Bundle args = new Bundle();
-        args.putSerializable("filters", this.restaurantMap.getCurrentFilters());
+        args.putSerializable("filters", this._filterManager.getCurrentFilters());
         filtersFragment.setArguments(args);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -140,27 +159,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onFiltersChanged(LinkedHashMap<String, IViewableFilter> filters) {
-        this.restaurantMap.applyFilters(filters);
+        this._filterManager.setCurrentFilters(filters);
+        this._mapFragment.setFilters(this._filterManager.getCurrentFilters());
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        User currentUser = AccountManager.getInstance().currentUser(this);
-        if (currentUser != null) {
-            int size = (int) (32 * Resources.getSystem().getDisplayMetrics().density);
-            String firstChar = currentUser.username.substring(0, 1).toUpperCase();
-            TextDrawable drawable = TextDrawable.builder().beginConfig().width(size).height(size).endConfig().buildRound(firstChar, getResources().getColor(R.color.colorAccent));
-            menu.add(0, Codes.ShowProfileAction, 0, "My AuthResult").setIcon(drawable)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        } else {
-            menu.add(0, Codes.LoginButtonAction, 0, "Login").setIcon(R.drawable.account_circle)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
-
-        menu.add(0, Codes.RefreshButtonAction, 0, "Refresh").setIcon(R.drawable.ic_refresh_24dp)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
+        menu.add(0, Codes.RefreshButtonAction, 0, "Refresh").setIcon(R.drawable.ic_refresh_24dp).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         return true;
     }
 
@@ -221,45 +227,45 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void _openAddActivity() {
-        Intent intent = new Intent(this, AddRestaurantActivity.class);
-        intent.putStringArrayListExtra(Codes.AvailableGenresExtra, this.restaurantMap.getAvailableGenres());
-        intent.putStringArrayListExtra(Codes.AvailableSubGenresExtra, this.restaurantMap.getAvailableSubGenres());
-        startActivityForResult(intent, Codes.AddActivityRequest);
+//        Intent intent = new Intent(this, AddRestaurantActivity.class);
+//        intent.putStringArrayListExtra(Codes.AvailableGenresExtra, this.restaurantMap.getAvailableGenres());
+//        intent.putStringArrayListExtra(Codes.AvailableSubGenresExtra, this.restaurantMap.getAvailableSubGenres());
+//        startActivityForResult(intent, Codes.AddActivityRequest);
     }
 
     private void _checkIfAccountExists() {
-        User currUser = AccountManager.getInstance().currentUser(this);
-        if (currUser == null) {
-            this._addButton.hide();
-        } else {
-            this._addButton.show();
-        }
+//        User currUser = AccountManager.getInstance().currentUser(this);
+//        if (currUser == null) {
+//            this._addButton.hide();
+//        } else {
+//            this._addButton.show();
+//        }
     }
 
     private void _refreshMap(IRefreshCallback callback) {
-        RestaurantMapApiClient client = new RestaurantMapApiClient(this);
-        client.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
-            @Override
-            public void onSuccess(List<Restaurant> response) {
-                restaurantMap.clearItems();
-                restaurantMap.addItems(response);
-                restaurantMap.saveToCache(response);
-                if (callback != null) {
-                    callback.callback();;
-                }
-            }
-
-            @Override
-            public void onFailure(String error) {
-                _showFailureToast();
-                restaurantMap.clearItems();
-                restaurantMap.loadFromCache();
-            }
-        });
+//        RestaurantMapApiClient client = new RestaurantMapApiClient(this);
+//        client.getRestaurants(new IClientResponseHandler<List<Restaurant>>() {
+//            @Override
+//            public void onSuccess(List<Restaurant> response) {
+//                restaurantMap.clearItems();
+//                restaurantMap.addItems(response);
+//                restaurantMap.saveToCache(response);
+//                if (callback != null) {
+//                    callback.callback();;
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(String error) {
+//                _showFailureToast();
+//                restaurantMap.clearItems();
+//                restaurantMap.loadFromCache();
+//            }
+//        });
     }
 
     private void _scrollMapToRestaurant(Location loc) {
-        this.restaurantMap.moveToRestaurant(loc);
+//        this.restaurantMap.moveToRestaurant(loc);
     }
 
     private interface IRefreshCallback {

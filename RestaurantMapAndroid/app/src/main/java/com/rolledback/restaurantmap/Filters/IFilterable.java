@@ -6,5 +6,4 @@ import java.util.LinkedHashMap;
 
 public interface IFilterable {
     void applyFilters(LinkedHashMap<String, IViewableFilter> filters);
-    LinkedHashMap<String, IViewableFilter> getCurrentFilters();
 }

@@ -1,53 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".Activities.MainActivity">
+    android:layout_width="match_parent">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".Activities.MainActivity" />
+        android:orientation="vertical"
+        tools:context=".Activities.MainActivity">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/filter_button"
-        style="@style/floating_action_button_extended_middle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/filter_button_label"
-        app:cornerRadius="32dp"
-        app:icon="@drawable/ic_tune"
-        app:iconTint="@android:color/white"
-        app:layout_anchor="@+id/map"
-        app:layout_anchorGravity="bottom|center"
-        app:layout_constraintBottom_toBottomOf="@id/map"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/map"
-        android:stateListAnimator="@null"/>
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_nav_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_button"
-        style="@style/floating_action_button_right"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:src="@drawable/ic_baseline_add_24px"
-        android:tint="@android:color/white"
-        app:layout_anchor="@+id/map"
-        app:layout_anchorGravity="bottom|right"
-        android:stateListAnimator="@null"
-        app:elevation="0dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filter_button"
+            style="@style/floating_action_button_extended_middle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="84dp"
+            android:layout_marginBottom="16dp"
+            android:stateListAnimator="@null"
+            android:text="@string/filter_button_label"
+            app:cornerRadius="32dp"
+            app:icon="@drawable/ic_tune"
+            app:iconTint="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_button"
+            style="@style/floating_action_button_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="420dp"
+            android:clickable="true"
+            android:src="@drawable/ic_baseline_add_24px"
+            android:stateListAnimator="@null"
+            android:tint="@android:color/white"
+            app:elevation="0dp"
+            app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/bottom_navigation"
+            android:background="?android:attr/windowBackground"
+            tools:layout_editor_absoluteX="0dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <FrameLayout
         android:id="@+id/filters_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>
