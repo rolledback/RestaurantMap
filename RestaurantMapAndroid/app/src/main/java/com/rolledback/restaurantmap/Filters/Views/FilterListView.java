@@ -37,7 +37,9 @@ public class FilterListView<T extends IFilterView> extends LinearLayout implemen
         this._linearLayout = findViewById(R.id.filter_item_list_linear_layout);
         for (int i = 0; i < this._children.size(); i++) {
             IFilterView child = this._children.get(i);
-            this._linearLayout.addView(child.asView(), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, (int)(2.5 * context.getResources().getDisplayMetrics().density), 0, 0);
+            this._linearLayout.addView(child.asView(), params);
             child.asView().requestLayout();
             if (child.shouldAlwaysShow()) {
                 child.show();
@@ -51,7 +53,9 @@ public class FilterListView<T extends IFilterView> extends LinearLayout implemen
         if (hasHidden) {
             _toggleShowMoreTextView = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.show_more_text, null);
             _toggleShowMoreTextView.setText("Show more");
-            this._linearLayout.addView(_toggleShowMoreTextView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, (int)(10 * context.getResources().getDisplayMetrics().density), 0, 0);
+            this._linearLayout.addView(_toggleShowMoreTextView, params);
             _toggleShowMoreTextView.setOnClickListener(v -> _toggleShowMore());
         }
     }
