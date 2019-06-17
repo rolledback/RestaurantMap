@@ -3,6 +3,7 @@ package com.rolledback.restaurantmap.Activities;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -17,6 +18,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.rolledback.restaurantmap.FragmentInterfaces.IRestaurantListSelectListener;
+import com.rolledback.restaurantmap.Fragments.ListFragment;
 import com.rolledback.restaurantmap.Lib.Codes;
 import com.rolledback.restaurantmap.Filters.FilterManager;
 import com.rolledback.restaurantmap.Filters.IFiltersChangedListener;
@@ -40,7 +43,7 @@ import com.rolledback.restaurantmap.RestaurantMapAPI.RestaurantMapApiClient;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IFiltersChangedListener, IAppLoginListener {
+public class MainActivity extends AppCompatActivity implements IFiltersChangedListener, IAppLoginListener, IRestaurantListSelectListener {
     private IRestaurantCollection _restaurantCollection;
     private RestaurantMapApiClient _apiClient;
     private FilterManager _filterManager;
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     private BottomNavigationView _bottomNavBar;
 
     private MapFragment _mapFragment;
-    private MapFragment _listFragment;
+    private ListFragment _listFragment;
     private LoginFragment _loginFragment;
     private AccountFragment _acctFragment;
     private MainFragment _activeFragment;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         _currState.loggedIn = AccountManager.getInstance().currentUser(this) != null;
 
         _mapFragment = new MapFragment();
-        _listFragment = new MapFragment();
+        _listFragment = new ListFragment();
         _loginFragment = new LoginFragment();
         _acctFragment = new AccountFragment();
 
@@ -109,13 +112,12 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
         this._addButton.setOnClickListener(v -> {
             _openAddActivity();
         });
-        this._addButton.hide();
 
         this._filterButton = findViewById(R.id.filter_button);
         this._filterButton.setOnClickListener(view -> {
             _showFilters();
         });
-        this._filterButton.hide();
+        this._updateButtonsState();
 
         this._restaurantCollection = new RestaurantCollection(this);
         this._apiClient = new RestaurantMapApiClient(this);
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     public void onFiltersChanged(LinkedHashMap<String, IViewableFilter> filters) {
         this._filterManager.setCurrentFilters(filters);
         this._mapFragment.setFilters(this._filterManager.getCurrentFilters());
+        this._listFragment.setFilters(this._filterManager.getCurrentFilters());
     }
 
     @Override
@@ -208,8 +211,11 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
             public void onSuccess(List<Restaurant> response) {
                 _restaurantCollection.addItems(response);
                 _restaurantCollection.saveToCache();
-                _mapFragment.setRestaurants(_restaurantCollection.getItems());
                 _filterManager.initFilters(_restaurantCollection.getItems());
+
+                _listFragment.setRestaurants(_restaurantCollection.getItems());
+                _mapFragment.setRestaurants(_restaurantCollection.getItems());
+
                 if (callback != null) {
                     callback.callback();
                 }
@@ -235,6 +241,10 @@ public class MainActivity extends AppCompatActivity implements IFiltersChangedLi
     public void onLoginEvent() {
         _currState.loggedIn = true;
         _changeFragment(_acctFragment);
+    }
+
+    @Override
+    public void onRestaurantSelected(Restaurant restaurant) {
     }
 
     private interface IRefreshCallback {

@@ -13,7 +13,6 @@
         android:layout_column="0"
         android:layout_width="0dp"
         android:layout_gravity="fill_horizontal" />
-
     <TextView
         style="@style/filter_field_description_text"
         android:id="@+id/description"
