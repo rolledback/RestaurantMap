@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.rolledback.restaurantmap.FragmentInterfaces.IAppLoginListener;
+import com.rolledback.restaurantmap.Fragments.FragmentInterfaces.IAppLoginListener;
 import com.rolledback.restaurantmap.Lib.AppState;
 import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.AccountManager;

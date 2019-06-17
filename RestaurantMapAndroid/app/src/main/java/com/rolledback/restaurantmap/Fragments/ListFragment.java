@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rolledback.restaurantmap.Filters.Models.IViewableFilter;
-import com.rolledback.restaurantmap.FragmentInterfaces.IRestaurantListSelectListener;
+import com.rolledback.restaurantmap.Fragments.FragmentInterfaces.IRestaurantListSelectListener;
 import com.rolledback.restaurantmap.Lib.AppState;
 import com.rolledback.restaurantmap.Lib.FilterEvaluator;
 import com.rolledback.restaurantmap.R;

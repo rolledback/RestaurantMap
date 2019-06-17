@@ -1,4 +1,4 @@
-package com.rolledback.restaurantmap.FragmentInterfaces;
+package com.rolledback.restaurantmap.Fragments.FragmentInterfaces;
 
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 

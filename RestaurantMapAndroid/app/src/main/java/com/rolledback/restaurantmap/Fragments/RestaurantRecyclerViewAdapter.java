@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.rolledback.restaurantmap.FragmentInterfaces.IRestaurantListSelectListener;
+import com.rolledback.restaurantmap.Fragments.FragmentInterfaces.IRestaurantListSelectListener;
 import com.rolledback.restaurantmap.R;
 import com.rolledback.restaurantmap.RestaurantMapAPI.Restaurant;
 
