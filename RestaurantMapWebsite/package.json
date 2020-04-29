@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "bootstrap": "^4.0.0",
-    "jquery": "3.2.1",
+    "jquery": "3.5.0",
     "knockout": "^3.5.0-beta",
     "popper.js": "^1.12.9"
   },
